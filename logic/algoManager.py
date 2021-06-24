@@ -56,13 +56,19 @@ class Cash():
         self.balance = self.balance.drop_duplicates(subset=['date'],
                                                     keep='last')
 
+    def get_balances(self):
+        export_balance = self.balance.copy()
+        export_balance.index = export_balance.date
+        export_balance = export_balance.drop('date',axis=1)
+        return export_balance
+
 # template class for analysts to use for creating strategies. To create a strategy write your stuff in the process methods after creating a child class of strategy
 class Strategy:
     def __init__(self):
         self.asset_dictionary = {} # dictionary that will be used to handle bar data and positions for each asset
         self.CAN_TRADE = False # boolean datatype which controls whether or not the strategy may execute trades. Should be used to catch runtime errors in the algorithms such that nothing bad happens...
         self.set_trade_allocation()
-        self.cash_wallet = Cash()
+        self.cash_tracker = Cash()
     # used to create asset objects for the asset dictionary. Allows for positions to be tracked alongside price data
     def universe(self,action,ticker):
         if action == 'add' and ticker not in self.asset_dictionary.keys():
@@ -85,7 +91,7 @@ class Strategy:
     # this method sets the cash ammount that is allowed to be used for taking on long positions
     def update_cash_allocation(self):
         self.trade_cash = self.allocation*self.cash
-        self.cash_wallet.update(date=self.current_date,
+        self.cash_tracker.update(date=self.current_date,
                                 current_cash=self.cash)
 
     # checks whether or not the algorithm is allowed to trade given the available cash and size of the asset tracking dictionary
