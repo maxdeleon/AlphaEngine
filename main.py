@@ -40,7 +40,8 @@ def main():
 
     engine.backtest(strategy=dummy_strategy, # tell the engine what strategy we want to backtest
                     data_dict=backtest_data, # tell the engine what data we want to backtest on
-                    starting_cash=25000) # set the starting cash
+                    starting_cash=25000,# set the starting cash
+                    log=True)
 
 
 if __name__ == '__main__':
