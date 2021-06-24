@@ -5,7 +5,7 @@ class Engine:
     def __init__(self):
         pass
 
-    def backtest(self,strategy,data_dict,starting_cash=100000):
+    def backtest(self,strategy,data_dict,starting_cash=100000,log=False):
         '''
         :param strategy:
         :param data:
@@ -38,7 +38,11 @@ class Engine:
 
 
         print('Simulation Complete!') # tell the user their strategy is done being slammed by the backtest
-        trade_logs = strategy.return_trade_logs() # pull the trade logs
-        for ticker in trade_logs.keys(): # for each asset in the universe print a summary of the trade logs
-            print(ticker, 'trade log')
-            print(trade_logs[ticker])
+
+        if log:
+            trade_logs = strategy.return_trade_logs() # pull the trade logs
+            for ticker in trade_logs.keys(): # for each asset in the universe print a summary of the trade logs
+                print(ticker, 'trade log')
+                print(trade_logs[ticker])
+
+            print(strategy.cash_wallet.balance)
