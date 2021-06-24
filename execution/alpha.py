@@ -44,18 +44,19 @@ class Engine:
     def build_log(self,strategy_object,filename='BACKTEST_LOG.csv'):
 
         log_df = strategy_object.cash_tracker.get_balances() # get the cash balances of the strategy
+        log_df['strategy_value'] = log_df['total_cash'] # create a column to track the value of the strategy's holdings
         df_lens = [len(log_df.index)] # debug tool
 
-        for ticker in strategy_object.asset_dictionary.keys():
-            current_asset_closes = pd.DataFrame((strategy_object.asset_dictionary[ticker].bars.Close).rename(ticker+'_close'))
-            df_lens.append(len(current_asset_closes.index))
-            log_df = pd.concat([log_df, current_asset_closes.set_index(log_df.index[-len(current_asset_closes):])],axis=1)
+        for ticker in strategy_object.asset_dictionary.keys(): # iterate through the tickers
+            current_asset_closes = pd.DataFrame((strategy_object.asset_dictionary[ticker].bars.Close).rename(ticker+'_close')) # ticker close values
+            df_lens.append(len(current_asset_closes.index)) # debug
+            log_df = pd.concat([log_df, current_asset_closes.set_index(log_df.index[-len(current_asset_closes):])],axis=1) # add the close to the main tracking df
 
+        for ticker in strategy_object.asset_dictionary.keys():  # iterate through the tickers
+            current_asset_log_df = strategy_object.asset_dictionary[ticker].get_trades() # get the asset data
+            df_lens.append(len(current_asset_log_df.index)) # debug
+            log_df = pd.concat([log_df,current_asset_log_df.set_index(log_df.index[-len(current_asset_log_df):])],axis=1) # add the positions and trade data to the main tracking df
+            log_df['strategy_value'] += log_df[ticker+'_close'] * log_df[ticker+'_current_position'] # calculate the value of the holdings
 
-
-        for ticker in strategy_object.asset_dictionary.keys():
-            current_asset_log_df = strategy_object.asset_dictionary[ticker].get_trades()
-            df_lens.append(len(current_asset_log_df.index))
-            log_df = pd.concat([log_df,current_asset_log_df.set_index(log_df.index[-len(current_asset_log_df):])],axis=1)
         print('Exporting trade data to',filename)
         log_df.to_csv(filename)
