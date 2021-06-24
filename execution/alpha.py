@@ -39,9 +39,23 @@ class Engine:
         print('Simulation Complete!') # tell the user their strategy is done being slammed by the backtest
 
         if log:
-            trade_logs = strategy.return_trade_logs() # pull the trade logs
-            for ticker in trade_logs.keys(): # for each asset in the universe print a summary of the trade logs
-                print(ticker, 'trade log')
-                print(trade_logs[ticker])
+            self.build_log(strategy_object=strategy,filename=filename)
 
-            print(strategy.cash_wallet.balance)
+    def build_log(self,strategy_object,filename='BACKTEST_LOG.csv'):
+
+        log_df = strategy_object.cash_tracker.get_balances() # get the cash balances of the strategy
+        df_lens = [len(log_df.index)] # debug tool
+
+        for ticker in strategy_object.asset_dictionary.keys():
+            current_asset_closes = pd.DataFrame((strategy_object.asset_dictionary[ticker].bars.Close).rename(ticker+'_close'))
+            df_lens.append(len(current_asset_closes.index))
+            log_df = pd.concat([log_df, current_asset_closes.set_index(log_df.index[-len(current_asset_closes):])],axis=1)
+
+
+
+        for ticker in strategy_object.asset_dictionary.keys():
+            current_asset_log_df = strategy_object.asset_dictionary[ticker].get_trades()
+            df_lens.append(len(current_asset_log_df.index))
+            log_df = pd.concat([log_df,current_asset_log_df.set_index(log_df.index[-len(current_asset_log_df):])],axis=1)
+        print('Exporting trade data to',filename)
+        log_df.to_csv(filename)
