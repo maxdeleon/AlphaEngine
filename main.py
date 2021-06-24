@@ -2,6 +2,7 @@ from execution import alpha
 from logic import algoManager
 from logic.algoManager import Strategy
 from market_data import yahooClient
+import random
 
 '''
 Created by Maximo Xavier DeLeon on 6/23/2021
@@ -13,12 +14,18 @@ class dummyBuyStrategy(Strategy):
         Strategy.__init__(self)
 
     def process_1(self):
-        self.check() # check whether or not the algo can make trades
+        flip = random.randint(1, 2)
         aapl_close = self.asset_dictionary['AAPL'].close # get the current close price of apple stock
-        if self.trade_cash > aapl_close: # if there is enough cash to buy a share of apple then buy it
+        msft_close = self.asset_dictionary['MSFT'].close  # get the current close price of microsoft stock
+        if flip == 1 and aapl_close <= self.trade_cash: # if there is enough cash to buy a share of apple then buy it
             self.trade('AAPL',1,aapl_close)
-            print('purchased','aapl,','remaining cash:',self.cash)
-        else: print('cash',self.cash)
+            print(self.current_date,'purchased', 'aapl,', 'remaining cash:', self.cash)
+
+        elif flip == 2 and msft_close <= self.trade_cash:
+            self.trade('MSFT', 1, msft_close)
+            print(self.current_date,'purchased', 'msft,', 'remaining cash:', self.cash)
+        else:
+            print('cash',self.cash)
 
     # more strategy goes here if its beefy
     def process_2(self):
