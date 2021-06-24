@@ -1,3 +1,4 @@
+import pandas as pd
 '''
 Created by Maximo Xavier DeLeon on 6/23/2021
 '''
