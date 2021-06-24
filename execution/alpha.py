@@ -5,7 +5,7 @@ class Engine:
     def __init__(self):
         pass
 
-    def backtest(self,strategy,data_dict,starting_cash=100000,log=False):
+    def backtest(self,strategy,data_dict,starting_cash=100000,log=False,filename='BACKTEST_LOG.csv'):
         '''
         :param strategy:
         :param data:
@@ -18,8 +18,6 @@ class Engine:
         # iterate through the dictionary keys and use those to define the universe of stocks our strategy will pay attention to
         for ticker in data_dict.keys():
             strategy.universe(action='add',ticker=ticker) # call the method from strategy
-
-
 
 
         backtest_data_lengths = [len(data_dict[ticker].index) for ticker in data_dict.keys()] # find the shortest backtest data - this is to stop errors for series with different lengths
