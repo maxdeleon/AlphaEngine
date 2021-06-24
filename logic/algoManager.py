@@ -25,10 +25,21 @@ class Asset:
     def adjust(self,quantity,price):
         self.position += quantity
         self.trade_log.append({'date':self.bars.index[-1],
-                               'trade_quantity':quantity,
-                               'trade_price':price})
+                               self.ticker+'trade_quantity':quantity,
+                               self.ticker+'trade_price':price})
     def get_trades(self):
         return pd.DataFrame(self.trade_log)
+
+# class to log the cash the strategy has
+class Cash():
+    def __init__(self):
+        self.balance = pd.DataFrame()
+    def update(self,date,current_cash):
+        self.balance = self.balance.append({'date':date,
+                                            'total_cash':current_cash},ignore_index=True)
+        # however many times we call this per unique date/time we only care about the end of step cash since the resulting difference will match the cash used to make trades
+        self.balance = self.balance.drop_duplicates(subset=['date'],
+                                                    keep='last')
 
 # template class for analysts to use for creating strategies. To create a strategy write your stuff in the process methods after creating a child class of strategy
 class Strategy:
@@ -36,6 +47,7 @@ class Strategy:
         self.asset_dictionary = {} # dictionary that will be used to handle bar data and positions for each asset
         self.CAN_TRADE = False # boolean datatype which controls whether or not the strategy may execute trades. Should be used to catch runtime errors in the algorithms such that nothing bad happens...
         self.set_trade_allocation()
+        self.cash_wallet = Cash()
     # used to create asset objects for the asset dictionary. Allows for positions to be tracked alongside price data
     def universe(self,action,ticker):
         if action == 'add' and ticker not in self.asset_dictionary.keys():
@@ -46,7 +58,7 @@ class Strategy:
             del self.asset_dictionary[ticker]
             print('System alert: removed', ticker, 'from universe')
 
-    # sets the cash that is available
+    # sets the initial cash
     def set_cash(self,cash):
         self.cash = cash
         self.set_trade_allocation()
@@ -58,6 +70,8 @@ class Strategy:
     # this method sets the cash ammount that is allowed to be used for taking on long positions
     def update_cash_allocation(self):
         self.trade_cash = self.allocation*self.cash
+        self.cash_wallet.update(date=self.current_date,
+                                current_cash=self.cash)
 
     # checks whether or not the algorithm is allowed to trade given the available cash and size of the asset tracking dictionary
     def check(self):
@@ -97,6 +111,7 @@ class Strategy:
                 elif quantity < 0 and quantity <= self.asset_dictionary[ticker].position:
                     self.asset_dictionary[ticker].adjust(quantity, price) # adjust position for closing long positions --- SHORTING NOT SUPPORTED
                     self.cash += -quantity*price # adjust cash after selling
+
                 else:
                     print('error')
             else:
@@ -111,10 +126,10 @@ class Strategy:
                 self.asset_dictionary[ticker].update(bar_package[ticker])
             else:
                 print('error')
+        self.current_date = self.asset_dictionary[ticker].bars.index[-1] # get the current date
 
     # method is what is updated in the engine loop
     def step(self,current_bars):
-        self.update_cash_allocation()
         self.update_bars(bar_package=current_bars) # update the bars in the asset objects
         self.update_cash_allocation()
         self.process_1() # process the data and also implement strategy logic to refresh every step pt1
@@ -122,7 +137,7 @@ class Strategy:
         self.process_2()  # process the data and also implement strategy logic to refresh every step pt2
         self.update_cash_allocation()
         self.process_3()  # process the data and also implement strategy logic to refresh every step pt3
-
+        self.update_cash_allocation()
     # strategy goes here
     def process_1(self):
         pass
