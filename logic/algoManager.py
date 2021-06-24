@@ -15,11 +15,12 @@ class Asset:
     # updates the asset by appending the most current bar onto the current bar dataframe
     def update(self,bar):
         self.bars = self.bars.append(bar,ignore_index=False)
-
+        self.returns = np.log(self.bars.Close[-1] / self.bars.Close[-2]) if len(self.bars.index) > 1 else 0 #  calculate returns
         self.trade_log = self.trade_log.append({'date': self.bars.index[-1],
                                                 self.ticker + '_current_position': self.position,
                                                 self.ticker + '_trade_quantity': 0,
-                                                self.ticker + '_trade_price': 0},ignore_index=True)
+                                                self.ticker + '_trade_price': 0,
+                                                self.ticker+'_returns':self.returns},ignore_index=True)
 
         self.open = self.bars.Open[-1]
         self.high = self.bars.High[-1]
@@ -35,7 +36,8 @@ class Asset:
         self.trade_log = self.trade_log.append({'date':self.bars.index[-1],
                                self.ticker + '_current_position': self.position,
                                self.ticker+'_trade_quantity':quantity,
-                               self.ticker+'_trade_price':price},ignore_index=True)
+                               self.ticker+'_trade_price':price,
+                               self.ticker+'_returns': self.returns},ignore_index=True)
         self.trade_log = self.trade_log.drop_duplicates(subset=['date'],
                                                         keep='last')
 
