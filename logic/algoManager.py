@@ -10,25 +10,40 @@ class Asset:
         self.ticker = ticker # ticker of stock or crypto
         self.bars = pd.DataFrame() # dataframe to store bar data
         self.position = 0 # default positon size
-        self.trade_log = [] # list of dictionaries which will be used to make a dataframe
+        self.trade_log = pd.DataFrame() # list of dictionaries which will be used to make a dataframe
 
     # updates the asset by appending the most current bar onto the current bar dataframe
     def update(self,bar):
         self.bars = self.bars.append(bar,ignore_index=False)
+
+        self.trade_log = self.trade_log.append({'date': self.bars.index[-1],
+                                                self.ticker + '_current_position': self.position,
+                                                self.ticker + '_trade_quantity': 0,
+                                                self.ticker + '_trade_price': 0},ignore_index=True)
+
         self.open = self.bars.Open[-1]
         self.high = self.bars.High[-1]
         self.low = self.bars.Low[-1]
         self.close = self.bars.Close[-1]
         self.volume = self.bars.Volume[-1]
 
+
+
     # adjusts the position in the asset object
     def adjust(self,quantity,price):
         self.position += quantity
-        self.trade_log.append({'date':self.bars.index[-1],
-                               self.ticker+'trade_quantity':quantity,
-                               self.ticker+'trade_price':price})
+        self.trade_log = self.trade_log.append({'date':self.bars.index[-1],
+                               self.ticker + '_current_position': self.position,
+                               self.ticker+'_trade_quantity':quantity,
+                               self.ticker+'_trade_price':price},ignore_index=True)
+        self.trade_log = self.trade_log.drop_duplicates(subset=['date'],
+                                                        keep='last')
+
     def get_trades(self):
-        return pd.DataFrame(self.trade_log)
+        export_trade_log = pd.DataFrame(self.trade_log)
+        export_trade_log.index = export_trade_log.date
+        export_trade_log = export_trade_log.drop('date', axis=1)
+        return export_trade_log
 
 # class to log the cash the strategy has
 class Cash():
