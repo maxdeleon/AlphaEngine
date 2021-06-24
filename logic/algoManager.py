@@ -124,17 +124,19 @@ class Strategy:
 
     # tracks trades by altering a trade log dataframe in the asset object
     def trade(self,ticker,quantity,price):
+        self.check()
         if self.CAN_TRADE:
             if ticker in self.asset_dictionary.keys():
                 if quantity > 0 and quantity*price <= self.trade_cash:
                     self.asset_dictionary[ticker].adjust(quantity,price) # adjust position for long position
                     self.cash += -quantity * price # adjust cash after buying
+                    self.update_cash_allocation()
                 elif quantity < 0 and quantity <= self.asset_dictionary[ticker].position:
                     self.asset_dictionary[ticker].adjust(quantity, price) # adjust position for closing long positions --- SHORTING NOT SUPPORTED
                     self.cash += -quantity*price # adjust cash after selling
-
-                else:
-                    print('error')
+                    self.update_cash_allocation()
+                elif quantity > 0 and quantity*price >= self.trade_cash:
+                    print('Error: ' + ticker + ' BUY order ' + str(quantity) + 'x$' + str(price) + ' is too large')
             else:
                 print('Error:',ticker, 'can not be traded!')
         else:
@@ -154,11 +156,9 @@ class Strategy:
         self.update_bars(bar_package=current_bars) # update the bars in the asset objects
         self.update_cash_allocation()
         self.process_1() # process the data and also implement strategy logic to refresh every step pt1
-        self.update_cash_allocation()
         self.process_2()  # process the data and also implement strategy logic to refresh every step pt2
-        self.update_cash_allocation()
         self.process_3()  # process the data and also implement strategy logic to refresh every step pt3
-        self.update_cash_allocation()
+
     # strategy goes here
     def process_1(self):
         pass
