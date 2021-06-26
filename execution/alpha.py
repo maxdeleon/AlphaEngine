@@ -59,7 +59,7 @@ class Engine:
             log_df['strategy_value'] += log_df[ticker+'_close'] * log_df[ticker+'_current_position'] # calculate the value of the holdings
 
 
-        print('PnL: $' + str(log_df.strategy_value.iloc[-1]-log_df.strategy_value.iloc[0]))
+        print('PnL: $' + str(log_df.strategy_value.iloc[-1]-log_df.strategy_value.iloc[0])) # print out PnL to the terminal
 
         print('Exporting trade data to',filename)
         log_df.to_csv(filename)
