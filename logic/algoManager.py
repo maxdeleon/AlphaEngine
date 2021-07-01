@@ -47,6 +47,18 @@ class Asset:
         export_trade_log = export_trade_log.drop('date', axis=1)
         return export_trade_log
 
+class Position:
+    def __init__(self,quantity,entry_price):
+        self.position_size = quantity
+        self.entry_price = entry_price
+        self.PnL = 0
+    def update(self,quantity,current_price):
+        self.position_size = quantity
+        self.current_price = current_price
+        self.PnL = np.log(self.current_price/self.entry_price)
+    def get_value(self):
+        return self.position_size*self.current_price
+
 # class to log the cash the strategy has
 class Cash():
     def __init__(self):
@@ -69,8 +81,9 @@ class Strategy:
     def __init__(self):
         self.asset_dictionary = {} # dictionary that will be used to handle bar data and positions for each asset
         self.CAN_TRADE = False # boolean datatype which controls whether or not the strategy may execute trades. Should be used to catch runtime errors in the algorithms such that nothing bad happens...
-        self.set_trade_allocation()
-        self.cash_tracker = Cash()
+        self.set_trade_allocation() # sets the % available cash that can be used to trade
+        self.cash_tracker = Cash() # object to track the ammount of available cash
+        self.parameter_dictionary = {}
     # used to create asset objects for the asset dictionary. Allows for positions to be tracked alongside price data
     def universe(self,action,ticker):
         if action == 'add' and ticker not in self.asset_dictionary.keys():
