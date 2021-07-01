@@ -76,6 +76,52 @@ class Cash():
         export_balance = export_balance.drop('date',axis=1)
         return export_balance
 
+
+class ParameterBook:
+    # creates a parameter book object. This class makes a
+    # optionally add in patameters to the newly created dictionary
+    def __init__(self,parameter_dict=None):
+        self.parameters = {} # empty
+
+        if type(parameter_dict) is not None:
+            if type(parameter_dict) is dict:
+                self.add_parameter(parameter_dict)
+            else:
+                raise TypeError(parameter_dict,' must be a dictionary')
+        else:
+            pass
+
+    def add_parameters(self,parameter_dict):
+        if type(parameter_dict) is dict:
+            for parameter_key in parameter_dict.keys():
+                if parameter_key not in self.parameters.keys():
+                    self.parameters[parameter_key] = parameter_key[parameter_key]
+                else:
+                    raise ValueError(parameter_key,' is already a parameter in the parameter book')
+        else:
+            raise ValueError(parameter_dict,' is not a dictionary')
+
+    def delete_parameters(self,parameter_dict):
+        if type(parameter_dict) is dict:
+            for parameter_key in parameter_dict.keys():
+                if parameter_key in self.parameters.keys():
+                    del self.parameters[parameter_key]
+                else:
+                    raise ValueError(parameter_key, ' is not a parameter in the parameter book')
+        else:
+            raise ValueError(parameter_dict, ' is not a dictionary')
+
+    def update_parameters(self,parameter_dict):
+        if type(parameter_dict) is dict:
+            for parameter_key in parameter_dict.keys():
+                if parameter_key in self.parameters.keys():
+                    self.parameters[parameter_key] = parameter_key[parameter_key]
+                else:
+                    raise ValueError(parameter_key,' is not a parameter in the parameter book')
+        else:
+            raise ValueError(parameter_dict,' is not a dictionary')
+
+
 # template class for analysts to use for creating strategies. To create a strategy write your stuff in the process methods after creating a child class of strategy
 class Strategy:
     def __init__(self):
