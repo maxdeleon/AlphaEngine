@@ -41,5 +41,16 @@ def main():
                     log=True,
                     filename='BACKTEST_LOG.csv')
 
+    test_stochastic()
+
+def test_stochastic(): # method to test stochastic processes
+    some_asset = {'drift':.2,'volatility':.3,'delta_t':1/255,'initial_price':100} # random parameters
+    asset_simulator = alpha.StochasticProcessManager(stochastic_parameters=some_asset) # create a instance of the SPM
+    simulations = asset_simulator.generate(amount=10) # generate 10 different GBM simulations
+    print('testing brownian motion classes...') # tell the user what they just did
+
+    for i in simulations:   # print out all of the price lists
+        print(i.prices)
+
 if __name__ == '__main__':
     main()

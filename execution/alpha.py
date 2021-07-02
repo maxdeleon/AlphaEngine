@@ -91,7 +91,7 @@ class StochasticProcess:
         self.current_price = self.current_price + dS # set the new asset price to the previous price + the price change
         self.prices.append(self.current_price) # append the prices to the price list
 
-class ProcessManager:
+class StochasticProcessManager:
     # manages the stochastic process class
     def __init__(self,stochastic_parameters={'drift':None,'volatility':None,'delta_t':None,'initial_price':None}):
         self.stochastic_parameters = stochastic_parameters # set the base parameters of a simulated asset. OPTIONAL
