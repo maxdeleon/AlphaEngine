@@ -41,7 +41,7 @@ class Engine:
         print('Simulation Complete!') # tell the user their strategy is done being slammed by the backtest
 
         if log:
-            self.build_log(strategy_object=strategy,filename=filename)
+            self.build_log(strategy_object=strategy_object,filename=filename)
 
     def build_log(self,strategy_object,filename='BACKTEST_LOG.csv'):
 
