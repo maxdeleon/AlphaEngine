@@ -115,10 +115,10 @@ class StochasticProcessManager:
                                                    volatility=stochastic_parameters['volatility'],
                                                    delta_t=stochastic_parameters['delta_t'],
                                                    initial_price=stochastic_parameters['initial_price']))
-                for process in processes: # for each process
-                    time_to_expiration = 1 # set time to expiration as 1
-                    while((time_to_expiration - process.dt) > 0 ): # iterate through the time to expiration using time step dt
-                        process.step() # generate a price movement
-                        time_to_expiration -= process.dt # update the time to expiration
+            for process in processes:  # for each process
+                time_to_expiration = 1  # set time to expiration as 1
+                while ((time_to_expiration - process.dt) > 0):  # iterate through the time to expiration using time step dt
+                    process.step()  # generate a price movement
+                    time_to_expiration -= process.dt  # update the time to expiration
 
-                return processes # return a list of StochasticProsses objects that contain price lists of simulated price movements
+            return processes  # return a list of StochasticProsses objects that contain price lists of simulated price movements
