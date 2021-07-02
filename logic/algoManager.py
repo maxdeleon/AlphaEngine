@@ -47,6 +47,7 @@ class Asset:
         export_trade_log = export_trade_log.drop('date', axis=1)
         return export_trade_log
 
+# track individual positions --- NOT USED YET ---
 class Position:
     def __init__(self,quantity,entry_price):
         self.position_size = quantity
@@ -76,7 +77,7 @@ class Cash():
         export_balance = export_balance.drop('date',axis=1)
         return export_balance
 
-
+# to be used when optimizer is implemented
 class ParameterBook:
     # creates a parameter book object. This class makes a
     # optionally add in patameters to the newly created dictionary
@@ -120,7 +121,6 @@ class ParameterBook:
                     raise ValueError(parameter_key,' is not a parameter in the parameter book')
         else:
             raise ValueError(parameter_dict,' is not a dictionary')
-
 
 # template class for analysts to use for creating strategies. To create a strategy write your stuff in the process methods after creating a child class of strategy
 class Strategy:
