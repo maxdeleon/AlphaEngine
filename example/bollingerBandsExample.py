@@ -15,9 +15,10 @@ Created by Maximo Xavier DeLeon on 6/23/2021
 class Bollinger(Strategy):
     def __init__(self):
         Strategy.__init__(self)
-        self.set_trade_allocation(0.5)
+        self.set_trade_allocation(0.5) # set the amount of cash to be available for a trade at any given time
+
     def process_1(self):
-        stops = (0.10, -0.03)
+        self.stop_limits = (0.10, -0.03)
         target_ticker = 'AAPL'
         self.close_series = self.asset_dictionary[target_ticker].bars.Close  # get the current close price of apple stock
         upper, middle, lower = talib.BBANDS(self.close_series, matype=MA_Type.T3)
@@ -37,12 +38,12 @@ class Bollinger(Strategy):
             self.trade(target_ticker, -self.asset_dictionary[target_ticker].position, current_price)
 
         # stop loss
-        elif self.asset_dictionary[target_ticker].position > 0 and np.log(current_price/self.buy_price) <= stops[1]:
+        elif self.asset_dictionary[target_ticker].position > 0 and np.log(current_price/self.buy_price) <= self.stop_limits[1]:
             print(self.close_series.index[-1],'stop loss sold', self.asset_dictionary[target_ticker].position)
             self.trade(target_ticker, -self.asset_dictionary[target_ticker].position, current_price)
 
         # offset stop
-        elif self.asset_dictionary[target_ticker].position > 0 and np.log(current_price/self.buy_price) >= stops[0]:
+        elif self.asset_dictionary[target_ticker].position > 0 and np.log(current_price/self.buy_price) >= self.stop_limits[0]:
             print(self.close_series.index[-1],'stop win sold', self.asset_dictionary[target_ticker].position)
             self.trade(target_ticker, -self.asset_dictionary[target_ticker].position, current_price)
 
