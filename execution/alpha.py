@@ -102,7 +102,7 @@ class StochasticProcessManager:
         stochastic_parameters = self.stochastic_parameters if stochastic_parameters is None else stochastic_parameters  # override default parameters if not none type
         if type(stochastic_parameters) is not dict:
             raise TypeError(stochastic_parameters,' must be a dictionary') # check if stochastic_parameters is a dictionary type
-        elif stochastic_parameters.keys() != self.stochastic_keys: # check to see if the keys correspond to the accepted list of keys
+        elif list(stochastic_parameters.keys()) != self.stochastic_keys: # check to see if the keys correspond to the accepted list of keys
             raise IndexError ('parameter keys do not coincide to', self.stochastic_keys)
         elif not all(stochastic_parameters.values()): # make sure there are no none types in the dictionary values
             raise  TypeError('stochtastic process parameters contain None type')
