@@ -14,10 +14,9 @@ class dummyBuyStrategy(Strategy):
         Strategy.__init__(self)
 
     def process_1(self):
-        aapl_close = self.asset_dictionary['AAPL'].close # get the current close price of apple stock
-        msft_close = self.asset_dictionary['MSFT'].close  # get the current close price of microsoft stock
-
-
+        #aapl_close = self.asset_dictionary['AAPL'].close # get the current close price of apple stock
+        #msft_close = self.asset_dictionary['MSFT'].close  # get the current close price of microsoft stock
+        pass
     # more strategy goes here if its beefy
     def process_2(self):
         pass
@@ -26,7 +25,7 @@ class dummyBuyStrategy(Strategy):
         pass
 
 def main():
-    TICKER_LIST = ['AAPL','MSFT']  # define the ticker to trade
+    TICKER_LIST = ['AAPL','MSFT','SLV','BNO','SPY']  # define the ticker to trade
     START_STOP_DATES = ('2020-6-15', '2021-6-15')  # define the start and stop dates
 
     # get the data
