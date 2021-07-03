@@ -7,7 +7,6 @@ Created by Maximo Xavier DeLeon on 6/23/2021
 class Engine:
     def __init__(self):
         pass
-
     def backtest(self, strategy_object, backtest_series_dictionary, starting_cash=100000, log=False, filename='BACKTEST_LOG.csv'):
         '''
         :param strategy_object:
@@ -122,3 +121,26 @@ class StochasticProcessManager:
                     time_to_expiration -= process.dt  # update the time to expiration
 
             return processes  # return a list of StochasticProsses objects that contain price lists of simulated price movements
+
+    def absorb_parameters_from_series(self,df,column='Close'): # this method re writes the stochastic parameters with a user defined series
+        sample_size = len(df.index) # get the sample size of the price series
+        returns = np.log((df[column]/(df[column].shift(-1))))
+        std = np.std(returns) # volatility
+        annualized_drift = returns.mean * 252 # annualized drift
+        annualized_volatility = std * (252**0.5) # annualized volatility
+
+        self.stochastic_parameters={'drift':annualized_drift,
+                               'volatility':annualized_volatility,
+                               'delta_t':(1/sample_size),
+                               'initial_price':df[column].iloc[0]}
+
+    def build_scenarios(self,amount=10,stochastic_parameters=None,column_name='Close',ticker='GBM'): # builds scenarios and then returns them in the same format as the yahooClient.py method
+        alphabet_capitalized = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ' # alphabet string capitalized
+        random_ticker = ''.join(random.choice(alphabet_capitalized) for letter in range(4))  if ticker is None else ticker# generate a random ticker if one isnt given to the method
+        stochastic_tickers = [random_ticker + str(i) for i in range(amount)] # create a list of the tickers with a number ex: [CAT0, CAT1, CAT2 , ... , CATn]
+        stochastic_process_list = self.generate(amount=amount, stochastic_parameters=stochastic_parameters) # generate the series
+        stochastic_process_df_list = [] # blank list to be filled with the list of nested dictionaries
+        for process in stochastic_process_list: # iterate through the list of processes
+            stochastic_process_df_list.append(pd.DataFrame(data=process.prices,index=list(np.arange(len(process.prices))),columns= [column_name])) # append casted stochastic data to a df
+        scenarios = dict(zip(stochastic_tickers,stochastic_process_df_list)) # build a dictionary of nested pandas dataframes to be used with the backtester
+        return scenarios # return the scenario dictionary
