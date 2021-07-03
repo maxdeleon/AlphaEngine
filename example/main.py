@@ -29,13 +29,14 @@ def main():
     test_stochastic()
 
 def test_stochastic(): # method to test stochastic processes
+    print('testing stochastic process classes...') # tell the user what they just did
     some_asset = {'drift':.2,'volatility':.3,'delta_t':1/255,'initial_price':100} # random parameters
     asset_simulator = alpha.StochasticProcessManager(stochastic_parameters=some_asset) # create a instance of the SPM
-    simulations = asset_simulator.generate(amount=10) # generate 10 different GBM simulations
-    print('testing brownian motion classes...') # tell the user what they just did
-
+    simulations = asset_simulator.build_scenarios(amount=10) # generate 10 different GBM simulations
     for i in simulations:   # print out all of the price lists
-        print(i.prices)
+        print(i)
+        print(simulations[i].head(5))
+        print('-=-=-=-=-==--=-=-=-')
 
 if __name__ == '__main__':
     main()
