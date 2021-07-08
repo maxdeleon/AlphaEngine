@@ -122,6 +122,62 @@ class ParameterBook:
         else:
             raise ValueError(parameter_dict,' is not a dictionary')
 
+# order class to manage orders requested by the strategy. works within the order manager class
+class Order:
+    def __init__(self,ticker, quantity, price,win=0.05,loss=-0.015):
+        self.ticker = ticker
+        self.status = 'PENDING'
+        self.data = {'ticker':ticker,'quantity':quantity,'price':price,'fill_price':None,'win_lim':win, 'stop_lim':loss, 'filled':False}
+
+    def fill(self,fill_price):
+        self.status = 'FILLED'
+        self.data['filled'] = True
+        self.data['fill_price'] = fill_price
+
+# used to manage the order objects and a layer of complexity to the whole order system
+class OrderManager:
+    def __init__(self):
+        self.pending_orders = {}  # store the order objects
+
+    def create_order(self,ticker, quantity, price,win=0.05,loss=-0.015):
+        # following Jane Street conventions
+        # https://www.janestreet.com/static/pdfs/trading-interview.pdf
+        if quantity > 0: # buy order
+            order_name = str(ticker) +'-$'+ str(round(price,2)) + '-bid-for-' + str(quantity) # create the order name
+            self.pending_orders[order_name] = Order(ticker,quantity,price,win,loss) # create the order and add it to the pending order dict
+            return order_name # return order name to called
+        elif quantity < 0: # sell order
+            order_name = str(ticker) +'-'+ str(abs(quantity)) + '-at-$' + str(round(price,2)) # create the order name
+            self.pending_orders[order_name] = Order(ticker,quantity,price,win,loss) # create the order and add it to the pending order dict
+            return order_name # return order name to called
+        elif quantity == 0: # return value error
+            raise ValueError('Cannot make order of zero quantity')
+
+    def kill_order(self,order_tag): # if for some reason you need to cancel the order you placed
+        if order_tag in self.pending_orders.keys(): # check if the order tag exists in the dictionary keys
+            del self.pending_orders[order_tag] # remove the order
+        else: raise ValueError('order tag is not recognized') # raise an error saying the tag doesnt exist
+
+    def send_orders(self): # method to return the pending orders to a method in the strategy class
+        return self.pending_orders # return the pending orders
+
+    def recieve_orders(self,updated_pending_orders): # method to recieve the previously sent pending orders and check whether or not they were filled
+        for order_tag in updated_pending_orders.keys():
+            if order_tag in self.pending_orders.keys():
+                if updated_pending_orders[order_tag].data['filled']:
+                    self.pending_orders[order_tag].data['filled'] = True
+                    self.pending_orders[order_tag].data['fill_price'] = updated_pending_orders[order_tag].data['fill_price']
+                else: pass
+            else: raise ValueError('The recieved order does not appear in the order book please check internal logic')
+
+    def update_book(self): # updates the pending order book
+        updated_pending = {}
+        for order_tag in self.pending_orders.keys():
+            if self.pending_orders[order_tag].data['filled'] == False: # if its not filled then add the order to the new dict
+                updated_pending[order_tag] = self.pending_orders[order_tag]
+            else: pass # if the order is filled then dont add it to the new dictionary
+        self.pending_orders = updated_pending # set the pending order dictionary equal to the updated pending order dictionary
+
 # template class for analysts to use for creating strategies. To create a strategy write your stuff in the process methods after creating a child class of strategy
 class Strategy:
     def __init__(self):
