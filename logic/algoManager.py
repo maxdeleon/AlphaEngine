@@ -180,7 +180,8 @@ class OrderManager:
 
 # template class for analysts to use for creating strategies. To create a strategy write your stuff in the process methods after creating a child class of strategy
 class Strategy:
-    def __init__(self):
+    def __init__(self,verbose=True):
+        self.verbose = verbose # if true then the strategy class is going to use print statements during actions
         self.asset_dictionary = {} # dictionary that will be used to handle bar data and positions for each asset
         self.CAN_TRADE = False # boolean datatype which controls whether or not the strategy may execute trades. Should be used to catch runtime errors in the algorithms such that nothing bad happens...
         self.set_trade_allocation() # sets the % available cash that can be used to trade
