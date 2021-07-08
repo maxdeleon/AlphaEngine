@@ -39,7 +39,7 @@ class BuyAndHold(Strategy):
 
 
 def main():
-    #test_algo_class()
+    test_algo_class()
     test_stochastic()
 
 def test_algo_class():
