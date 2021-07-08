@@ -239,7 +239,9 @@ class Strategy:
             trade_data = {ticker:self.asset_dictionary[ticker].get_trades()}
             return trade_data
         else:
-            print('Error',ticker,'not in asset dictionary')
+            if self.verbose:
+                print('Error',ticker,'not in asset dictionary')
+            else: pass
 
     # tracks trades by altering a trade log dataframe in the asset object
     def trade(self,ticker,quantity,price):
@@ -255,7 +257,19 @@ class Strategy:
                     self.cash += -quantity*price # adjust cash after selling
                     self.update_cash_allocation()
                 elif quantity > 0 and quantity*price >= self.trade_cash:
-                    print('Error: ' + ticker + ' BUY order ' + str(quantity) + 'x$' + str(price) + ' is too large')
+                    if self.verbose:
+                        print('System Error | ' + ticker + ' BUY order ' + str(quantity) + 'x$' + str(price) + ' is too large')
+                    else:
+                        pass
+                    return False
+            else:
+                if self.verbose:
+                    print('System Error |',ticker, 'can not be traded!')
+                else: pass
+                return False
+        else:
+            if self.verbose:
+                print('System Error | algorithm cannot trade!')
             else:
                 pass
             return False
