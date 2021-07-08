@@ -43,18 +43,18 @@ def main():
     test_stochastic()
 
 def test_algo_class():
-    print('testing stochastic process classes...') # tell the user what they just did
-    TICKER_LIST = ['AAPL', 'MSFT', 'SLV', 'BNO', 'SPY']  # define the ticker to trade
+    print('testing strategy classes...') # tell the user what they just did
+    TICKER_LIST = ['SOYB', 'UGA', 'UNG', 'CORN']  # define the ticker to trade
     START_STOP_DATES = ('2020-6-15', '2021-6-15')  # define the start and stop dates
 
     # get the data
     backtest_data = yahooClient.get_close_prices_yahoo(tickers=TICKER_LIST,  # tickers
                                                        start_date=START_STOP_DATES[0],  # start
                                                        stop_date=START_STOP_DATES[1])  # stop
-    dummy_strategy = dummyBuyStrategy()  # define the strategy that will beat the sp500
+    test_benchmark = BuyAndHold()  # define the strategy that will beat the sp500
     engine = alpha.Engine()  # define the engine that will test our epic win strat
 
-    engine.backtest(strategy_object=dummy_strategy,  # tell the engine what strategy we want to backtest
+    engine.backtest(strategy_object=test_benchmark,  # tell the engine what strategy we want to backtest
                     backtest_series_dictionary=backtest_data,  # tell the engine what data we want to backtest on
                     starting_cash=25000,  # set the starting cash
                     log=True,
