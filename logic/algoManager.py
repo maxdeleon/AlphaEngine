@@ -252,10 +252,12 @@ class Strategy:
                     self.asset_dictionary[ticker].adjust(quantity,price) # adjust position for long position
                     self.cash += -quantity * price # adjust cash after buying
                     self.update_cash_allocation()
+                    return True
                 elif quantity < 0 and quantity <= self.asset_dictionary[ticker].position:
                     self.asset_dictionary[ticker].adjust(quantity, price) # adjust position for closing long positions --- SHORTING NOT SUPPORTED
                     self.cash += -quantity*price # adjust cash after selling
                     self.update_cash_allocation()
+                    return True
                 elif quantity > 0 and quantity*price >= self.trade_cash:
                     if self.verbose:
                         print('System Error | ' + ticker + ' BUY order ' + str(quantity) + 'x$' + str(price) + ' is too large')
