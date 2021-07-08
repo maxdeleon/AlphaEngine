@@ -187,6 +187,7 @@ class Strategy:
         self.set_trade_allocation() # sets the % available cash that can be used to trade
         self.cash_tracker = Cash() # object to track the ammount of available cash
         self.parameter_dictionary = {}
+        self.StrategyOrderManager = OrderManager() # creates order manager object
     # used to create asset objects for the asset dictionary. Allows for positions to be tracked alongside price data
     def universe(self,action,ticker):
         if action == 'add' and ticker not in self.asset_dictionary.keys():
@@ -256,9 +257,34 @@ class Strategy:
                 elif quantity > 0 and quantity*price >= self.trade_cash:
                     print('Error: ' + ticker + ' BUY order ' + str(quantity) + 'x$' + str(price) + ' is too large')
             else:
-                print('Error:',ticker, 'can not be traded!')
-        else:
-            print('Error: algorithm cannot trade!')
+                pass
+            return False
+
+    # this is such that the strategy doesnt have a direct interation with the OrderManager and terminal output can be toggled
+    def create_order(self,ticker, quantity, price,win=0.05,loss=-0.015):
+        order_name = self.StrategyOrderManager.create_order(ticker, quantity, price,win,loss)
+        if self.verbose:
+            print('Order notification | Created:', order_name)
+        else: pass
+
+
+    def handle_orders(self):
+        order_dict = self.StrategyOrderManager.send_orders()
+        for order_tag in order_dict.keys():
+            order_dict[order_tag].data['filled'] = self.trade(ticker=order_dict[order_tag].data['ticker'],
+                                              quantity=float(order_dict[order_tag].data['quantity']),
+                                              price=float(order_dict[order_tag].data['price']))
+
+            if self.verbose:
+                if order_dict[order_tag].data['filled']:
+                    print('Order notification | filled:', order_tag)
+                else:
+                    print('Order notification | unable to fill:', order_tag)
+            else: pass
+
+            # future implementation will incorporate the trade limit variables
+        self.StrategyOrderManager.recieve_orders(order_dict) # receive the orders that were just processed
+        self.StrategyOrderManager.update_book() # update the order book to delete any filled orders
 
     # updates the bars for each asset being tracked
     def update_bars(self,bar_package): # this method recieves a dictionary of bar dataframe slices and appends each ticker's data to its corresponding asset tracking class
@@ -276,6 +302,8 @@ class Strategy:
         self.process_1() # process the data and also implement strategy logic to refresh every step pt1
         self.process_2()  # process the data and also implement strategy logic to refresh every step pt2
         self.process_3()  # process the data and also implement strategy logic to refresh every step pt3
+        self.handle_orders() # handles all the orders so the process methods do not directly interact with the trade method. This is important because I'd like to create a class for handling trades
+        # creating a trade class will allow for switching between a broker API and backtest engine easier
 
     # strategy goes here
     def process_1(self):
