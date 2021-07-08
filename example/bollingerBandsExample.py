@@ -11,6 +11,9 @@ from talib import MA_Type
 Created by Maximo Xavier DeLeon on 6/23/2021
 '''
 
+
+# this strategy needs to be updated to utilize order tracking
+
 # create custom trading strategies by declaring a Strategy child class
 class Bollinger(Strategy):
     def __init__(self):
