@@ -10,20 +10,33 @@ Created by Maximo Xavier DeLeon on 6/23/2021
 '''
 
 # create custom trading strategies by declaring a Strategy child class
-class dummyBuyStrategy(Strategy):
+
+
+class BuyAndHold(Strategy):
     def __init__(self):
         Strategy.__init__(self)
+        self.has_initialized = False
+
+        self.allocation_dict = {'SOYB': 0.2,
+                                'UGA': 0.2,
+                                'UNG': 0.2,
+                                'CORN': 0.2}
+        # the remaining 20% is just cash
+
+    def build_index(self):
+        for ticker in self.asset_dictionary.keys():  # for each ticker in the universe of tickers that this algorithm can trade
+            initial_price = self.asset_dictionary[ticker].close
+            initial_quantity = math.floor((self.cash * self.allocation_dict[ticker])/self.asset_dictionary[ticker].close)
+            #print(ticker,' initial quantity',initial_quantity, ': price ',initial_price)
+            self.create_order(ticker, initial_quantity, self.asset_dictionary[ticker].close)
 
     def process_1(self):
-        #aapl_close = self.asset_dictionary['AAPL'].close # get the current close price of apple stock
-        #msft_close = self.asset_dictionary['MSFT'].close  # get the current close price of microsoft stock
-        pass
-    # more strategy goes here if its beefy
-    def process_2(self):
-        pass
-    # and more strategy code goes here if your strategy is really beefy
-    def process_3(self):
-        pass
+        if not self.has_initialized:  # check to see if this has initialized
+            self.build_index()
+            self.has_initialized = True
+        else:
+            pass
+
 
 def main():
     #test_algo_class()
