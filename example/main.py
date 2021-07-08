@@ -2,8 +2,9 @@ from execution import alpha
 from logic import algoManager
 from logic.algoManager import Strategy
 from market_data import yahooClient
-import random
-
+import pandas as pd
+import matplotlib.pyplot as plt
+import math
 '''
 Created by Maximo Xavier DeLeon on 6/23/2021
 '''
