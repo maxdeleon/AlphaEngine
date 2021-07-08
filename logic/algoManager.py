@@ -61,7 +61,7 @@ class Position:
         return self.position_size*self.current_price
 
 # class to log the cash the strategy has
-class Cash():
+class Cash:
     def __init__(self):
         self.balance = pd.DataFrame()
     def update(self,date,current_cash):
