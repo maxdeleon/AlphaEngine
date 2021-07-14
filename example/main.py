@@ -12,36 +12,26 @@ Created by Maximo Xavier DeLeon on 6/23/2021
 
 # create custom trading strategies by declaring a Strategy child class
 
-
 class BuyAndHold(Strategy):
     def __init__(self):
         Strategy.__init__(self)
         self.has_initialized = False
-
         self.allocation_dict = {'SOYB': 0.2,
                                 'UGA': 0.2,
                                 'UNG': 0.2,
                                 'CORN': 0.2}
         # the remaining 20% is just cash
-
     def build_index(self):
         for ticker in self.asset_dictionary.keys():  # for each ticker in the universe of tickers that this algorithm can trade
             initial_price = self.asset_dictionary[ticker].close
             initial_quantity = math.floor((self.cash * self.allocation_dict[ticker])/self.asset_dictionary[ticker].close)
-            #print(ticker,' initial quantity',initial_quantity, ': price ',initial_price)
             self.create_order(ticker, initial_quantity, self.asset_dictionary[ticker].close)
-
     def process_1(self):
         if not self.has_initialized:  # check to see if this has initialized
             self.build_index()
             self.has_initialized = True
         else:
             pass
-
-
-def main():
-    test_algo_class()
-    test_stochastic()
 
 def test_algo_class():
     print('testing strategy classes...') # tell the user what they just did
@@ -76,5 +66,10 @@ def test_stochastic(): # method to test stochastic processes
     final_df.plot(legend=False)
     plt.title(str(some_asset), fontsize=10)
     plt.show()
+
+def main():
+    test_algo_class()
+    test_stochastic()
+
 if __name__ == '__main__':
     main()
