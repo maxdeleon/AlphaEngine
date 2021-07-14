@@ -1,5 +1,6 @@
 from execution import alpha
 from logic import algoManager
+from tools import Stochastics as stoch
 from logic.algoManager import Strategy
 from market_data import yahooClient
 import pandas as pd
@@ -59,6 +60,7 @@ def test_algo_class():
                     starting_cash=25000,  # set the starting cash
                     log=True,
                     filename='BACKTEST_LOG.csv')
+
 
 def test_stochastic(): # method to test stochastic processes
     print('testing stochastic process classes...') # tell the user what they just did
