@@ -4,7 +4,6 @@ import pandas as pd
 '''
 Created by Maximo Xavier DeLeon on 6/23/2021
 '''
-
 class Asset:
     def __init__(self,ticker):
         self.ticker = ticker # ticker of stock or crypto
@@ -126,10 +125,10 @@ class ParameterBook:
 class Order:
     def __init__(self,ticker, quantity, price,win=0.05,loss=-0.015):
         self.ticker = ticker
-        self.status = 'PENDING'
-        self.data = {'ticker':ticker,'quantity':quantity,'price':price,'fill_price':None,'win_lim':win, 'stop_lim':loss, 'filled':False}
+        self.status = 'PENDING' # some useless
+        self.data = {'ticker':ticker,'quantity':quantity,'price':price,'fill_price':None,'win_lim':win, 'stop_lim':loss, 'filled':False} # order data
 
-    def fill(self,fill_price):
+    def fill(self,fill_price): # this doesnt do anything yet so it will probably be removed at some point
         self.status = 'FILLED'
         self.data['filled'] = True
         self.data['fill_price'] = fill_price
@@ -161,7 +160,9 @@ class OrderManager:
     def send_orders(self): # method to return the pending orders to a method in the strategy class
         return self.pending_orders # return the pending orders
 
-    def recieve_orders(self,updated_pending_orders): # method to recieve the previously sent pending orders and check whether or not they were filled
+    # the send_orders method works with the receive_orders to update the order book
+
+    def receive_orders(self, updated_pending_orders): # method to recieve the previously sent pending orders and check whether or not they were filled
         for order_tag in updated_pending_orders.keys():
             if order_tag in self.pending_orders.keys():
                 if updated_pending_orders[order_tag].data['filled']:
@@ -299,7 +300,7 @@ class Strategy:
             else: pass
 
             # future implementation will incorporate the trade limit variables
-        self.StrategyOrderManager.recieve_orders(order_dict) # receive the orders that were just processed
+        self.StrategyOrderManager.receive_orders(order_dict) # receive the orders that were just processed
         self.StrategyOrderManager.update_book() # update the order book to delete any filled orders
 
     # updates the bars for each asset being tracked
@@ -334,3 +335,7 @@ class Strategy:
         pass
 
 # easter egg... jk just testing git - max
+
+# 3 different trading strategies
+# long term trends
+#
