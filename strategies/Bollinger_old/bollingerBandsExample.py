@@ -45,6 +45,7 @@ class Bollinger(Strategy):
             print(self.close_series.index[-1],'stop loss sold', self.asset_dictionary[target_ticker].position)
             self.trade(target_ticker, -self.asset_dictionary[target_ticker].position, current_price)
 
+
         # offset stop
         elif self.asset_dictionary[target_ticker].position > 0 and np.log(current_price/self.buy_price) >= self.stop_limits[0]:
             print(self.close_series.index[-1],'stop win sold', self.asset_dictionary[target_ticker].position)
