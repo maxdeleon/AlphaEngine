@@ -55,7 +55,7 @@ def test_algo_class():
 def test_stochastic(): # method to test stochastic processes
     print('testing stochastic process classes...') # tell the user what they just did
     some_asset = {'drift':.2,'volatility':.1,'delta_t':1/255,'initial_price':100} # random parameters
-    asset_simulator = alpha.StochasticProcessManager(stochastic_parameters=some_asset) # create a instance of the SPM
+    asset_simulator = stoch.StochasticProcessManager(stochastic_parameters=some_asset) # create a instance of the SPM
     simulations = asset_simulator.build_scenarios(amount=100) # generate 10 different GBM simulations
     final_df = pd.DataFrame()
     for i in simulations.keys():   # print out all of the price lists
