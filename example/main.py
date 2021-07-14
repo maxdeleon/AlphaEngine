@@ -1,5 +1,4 @@
 from execution import alpha
-from logic import algoManager
 from tools import Stochastics as stoch
 from logic.algoManager import Strategy
 from market_data import yahooClient
@@ -69,7 +68,7 @@ def test_stochastic(): # method to test stochastic processes
 
 def main():
     test_algo_class()
-    test_stochastic()
+    #test_stochastic()
 
 if __name__ == '__main__':
     main()
