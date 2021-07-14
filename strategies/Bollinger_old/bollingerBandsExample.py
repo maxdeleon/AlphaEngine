@@ -31,25 +31,20 @@ class Bollinger(Strategy):
 
         # bollinger buy
         if can_afford and current_price <= lower[-1] and position_size > 0:
-            self.trade(target_ticker, position_size, current_price)
-            print(self.close_series.index[-1],'upper bollinger bot',position_size)
+            self.create_order(target_ticker,position_size,current_price)
             self.buy_price = current_price
 
         # bollinger sell
         elif self.asset_dictionary[target_ticker].position > 0 and current_price >= upper[-1]:
-            print(self.close_series.index[-1],'lower bollinger sold',self.asset_dictionary[target_ticker].position)
-            self.trade(target_ticker, -self.asset_dictionary[target_ticker].position, current_price)
+            self.create_order(target_ticker, -self.asset_dictionary[target_ticker].position, current_price)
 
         # stop loss
         elif self.asset_dictionary[target_ticker].position > 0 and np.log(current_price/self.buy_price) <= self.stop_limits[1]:
-            print(self.close_series.index[-1],'stop loss sold', self.asset_dictionary[target_ticker].position)
-            self.trade(target_ticker, -self.asset_dictionary[target_ticker].position, current_price)
-
+            self.create_order(target_ticker, -self.asset_dictionary[target_ticker].position, current_price)
 
         # offset stop
         elif self.asset_dictionary[target_ticker].position > 0 and np.log(current_price/self.buy_price) >= self.stop_limits[0]:
-            print(self.close_series.index[-1],'stop win sold', self.asset_dictionary[target_ticker].position)
-            self.trade(target_ticker, -self.asset_dictionary[target_ticker].position, current_price)
+            self.create_order(target_ticker, -self.asset_dictionary[target_ticker].position, current_price)
 
         else: pass
     # more strategy goes here if its beefy
