@@ -223,7 +223,7 @@ class Strategy:
 
     # returns algorithm status alongside an overview of the performance at a given instant in time
     def status(self):
-        pass
+        return {'can_trade':self.CAN_TRADE,'cash_balance':self.cash_tracker.get_balances[-1],'total_trades':self.trade_count}
 
     # returns a folder containing overall strategy performance alongside trade logs
     def report(self):
