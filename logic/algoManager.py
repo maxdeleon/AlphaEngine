@@ -137,17 +137,17 @@ class OrderManager:
     def __init__(self):
         self.pending_orders = {}  # store the order objects
 
-    def create_order(self,ticker, quantity, price,win=0.05,loss=-0.015):
+    def create_order(self,ticker, quantity, price,win=0.05,loss=-0.015,message=''):
         # following Jane Street conventions
         # https://www.janestreet.com/static/pdfs/trading-interview.pdf
         if quantity > 0: # buy order
             order_name = str(ticker) +'-$'+ str(round(price,2)) + '-bid-for-' + str(quantity) # create the order name
-            self.pending_orders[order_name] = Order(ticker,quantity,price,win,loss) # create the order and add it to the pending order dict
-            return order_name # return order name to called
+            self.pending_orders[order_name] = Order(ticker,quantity,price,win,loss,message=message) # create the order and add it to the pending order dict
+            return order_name,message # return order name to called
         elif quantity < 0: # sell order
             order_name = str(ticker) +'-'+ str(abs(quantity)) + '-at-$' + str(round(price,2)) # create the order name
-            self.pending_orders[order_name] = Order(ticker,quantity,price,win,loss) # create the order and add it to the pending order dict
-            return order_name # return order name to called
+            self.pending_orders[order_name] = Order(ticker,quantity,price,win,loss,message=message) # create the order and add it to the pending order dict
+            return order_name,message # return order name to called
         elif quantity == 0: # return value error
             raise ValueError('Cannot make order of zero quantity')
 
@@ -277,10 +277,10 @@ class Strategy:
             return False
 
     # this is such that the strategy doesnt have a direct interation with the OrderManager and terminal output can be toggled
-    def create_order(self,ticker, quantity, price,win=0.05,loss=-0.015):
-        order_name = self.StrategyOrderManager.create_order(ticker, quantity, price,win,loss)
+    def create_order(self,ticker, quantity, price,win=0.05,loss=-0.015,message=''):
+        order_name,message = self.StrategyOrderManager.create_order(ticker, quantity, price,win,loss,message)
         if self.verbose:
-            print('Order notification | Created:', order_name)
+            print(self.current_date,'| Order notification | CREATED:', order_name,message)
         else: pass
 
 
