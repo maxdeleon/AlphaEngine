@@ -188,6 +188,7 @@ class Strategy:
         self.cash_tracker = Cash() # object to track the ammount of available cash
         self.parameter_dictionary = {}
         self.StrategyOrderManager = OrderManager() # creates order manager object
+        self.trade_count = 0
     # used to create asset objects for the asset dictionary. Allows for positions to be tracked alongside price data
     def universe(self,action,ticker):
         if action == 'add' and ticker not in self.asset_dictionary.keys():
@@ -290,12 +291,12 @@ class Strategy:
             order_dict[order_tag].data['filled'] = self.trade(ticker=order_dict[order_tag].data['ticker'],
                                               quantity=float(order_dict[order_tag].data['quantity']),
                                               price=float(order_dict[order_tag].data['price']))
-
             if self.verbose:
                 if order_dict[order_tag].data['filled']:
-                    print('Order notification | filled:', order_tag)
+                    print(self.current_date,'| Order notification | GOOD FILL:', order_tag)
+                    self.trade_count +=1
                 else:
-                    print('Order notification | unable to fill:', order_tag)
+                    print(self.current_date,'| Order notification | FILL FAIL:', order_tag)
             else: pass
 
             # future implementation will incorporate the trade limit variables
