@@ -122,11 +122,11 @@ class ParameterBook:
 
 # order class to manage orders requested by the strategy. works within the order manager class
 class Order:
-    def __init__(self,ticker, quantity, price,win=0.05,loss=-0.015):
+    def __init__(self,ticker, quantity, price,win=0.05,loss=-0.015,message=''):
         self.ticker = ticker
         self.status = 'PENDING' # some useless
         self.data = {'ticker':ticker,'quantity':quantity,'price':price,'fill_price':None,'win_lim':win, 'stop_lim':loss, 'filled':False} # order data
-
+        self.message = message
     def fill(self,fill_price): # this doesnt do anything yet so it will probably be removed at some point
         self.status = 'FILLED'
         self.data['filled'] = True
