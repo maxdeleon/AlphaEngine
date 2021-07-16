@@ -67,8 +67,7 @@ class Cash:
         self.balance = self.balance.append({'date':date,
                                             'total_cash':current_cash},ignore_index=True)
         # however many times we call this per unique date/time we only care about the end of step cash since the resulting difference will match the cash used to make trades
-        self.balance = self.balance.drop_duplicates(subset=['date'],
-                                                    keep='last')
+        self.balance = self.balance.drop_duplicates(subset=['date'],keep='last')
 
     def get_balances(self):
         export_balance = self.balance.copy()
