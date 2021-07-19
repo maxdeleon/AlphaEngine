@@ -95,21 +95,40 @@ class MACDStrat(Strategy):
 
 
 def main():
-    TICKER_LIST = ['CORN','SOYB']  # define the ticker to trade
-    START_STOP_DATES = ('2020-7-15', '2021-7-15')  # define the start and stop dates
+    COINS_TICKERS = ['USO','BNO','UGA','UNG','CORN','COW','SOYB','WEAT','JO','SGG','BAL','IAU','SLV','CPER']
 
-    # get the data
-    backtest_data = yahooClient.get_close_prices_yahoo(tickers=TICKER_LIST,  # tickers
-                                                       start_date=START_STOP_DATES[0],  # start
-                                                       stop_date=START_STOP_DATES[1])  # stop
-    dummy_strategy = MACDStrat()  # define the strategy that will beat the sp500
-    engine = alpha.Engine()  # define the engine that will test our epic win strat
+    START_STOP_DATES = ('2020-7-15', '2021-7-19')  # define the start and stop dates
 
-    engine.backtest(strategy_object=dummy_strategy,  # tell the engine what strategy we want to backtest
-                    backtest_series_dictionary=backtest_data,  # tell the engine what data we want to backtest on
-                    starting_cash=25000,  # set the starting cash
-                    log=True,
-                    filename='StochStrat_version1_LOG.csv')
+    for ticker in COINS_TICKERS:
+        # get the data
+        backtest_data = yahooClient.get_close_prices_yahoo(tickers=[ticker],  # tickers
+                                                           start_date=START_STOP_DATES[0],  # start
+                                                           stop_date=START_STOP_DATES[1])  # stop
+
+
+        macd_strategy = MACDStrat(fast_period=12,slow_period=26,signal_period=9)  # define the strategy that will beat the sp500
+        benchmark = BuyAndHold(allocation_dict={ticker:1})
+        engine = alpha.Engine()  # define the engine that will test our epic win strat
+
+
+        strategy_cumulative_returns = engine.backtest(strategy_object=macd_strategy,  # tell the engine what strategy we want to backtest
+                                                      backtest_series_dictionary=backtest_data,  # tell the engine what data we want to backtest on
+                                                      starting_cash=25000,  # set the starting cash
+                                                      log=False,
+                                                      filename='MACD_version1_LOG.csv')
+
+        benchmark_cumulative_returns = engine.backtest(strategy_object=benchmark,# tell the engine what strategy we want to backtest
+                                                      backtest_series_dictionary=backtest_data,# tell the engine what data we want to backtest on
+                                                      starting_cash=25000, # set the starting cash
+                                                      log=False,
+                                                      filename='benchmark.csv')
+
+        strategy_relative_return = strategy_cumulative_returns - benchmark_cumulative_returns
+
+        print('Strategy - Benchmark returns %:',strategy_relative_return)
+
+
+
 
 if __name__ == '__main__':
     main()
