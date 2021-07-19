@@ -11,13 +11,11 @@ Created by Maximo Xavier DeLeon on 7/13/2021
 '''
 
 class BuyAndHold(Strategy):
-    def __init__(self):
+    def __init__(self,allocation_dict={},verbose=False):
         Strategy.__init__(self)
         self.has_initialized = False
-        self.allocation_dict = {'SOYB': 0.2,
-                                'UGA': 0.2,
-                                'UNG': 0.2,
-                                'CORN': 0.2}
+        self.allocation_dict = allocation_dict
+        self.verbose = False
         # the remaining 20% is just cash
     def build_index(self):
         for ticker in self.asset_dictionary.keys():  # for each ticker in the universe of tickers that this algorithm can trade
@@ -40,15 +38,20 @@ def test_algo_class():
     backtest_data = yahooClient.get_close_prices_yahoo(tickers=TICKER_LIST,  # tickers
                                                        start_date=START_STOP_DATES[0],  # start
                                                        stop_date=START_STOP_DATES[1])  # stop
-    test_benchmark = BuyAndHold()  # define the strategy that will beat the sp500
+    allocation_dict = {'SOYB': 0.2,
+                       'UGA': 0.2,
+                       'UNG': 0.2,
+                       'CORN': 0.2}
+    test_benchmark = BuyAndHold(allocation_dict=allocation_dict)  # define the strategy that will beat the sp500
     engine = alpha.Engine()  # define the engine that will test our epic win strat
 
-    engine.backtest(strategy_object=test_benchmark,  # tell the engine what strategy we want to backtest
+    pnl = engine.backtest(strategy_object=test_benchmark,  # tell the engine what strategy we want to backtest
                     backtest_series_dictionary=backtest_data,  # tell the engine what data we want to backtest on
                     starting_cash=25000,  # set the starting cash
                     log=True,
                     filename='BACKTEST_LOG_benchmark.csv')
 
+    print('PnL %:', pnl)
 def main():
     test_algo_class()
     #test_stochastic()
