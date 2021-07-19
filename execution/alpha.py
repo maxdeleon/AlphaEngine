@@ -24,7 +24,7 @@ class Engine:
 
         backtest_data_lengths = [len(backtest_series_dictionary[ticker].index) for ticker in backtest_series_dictionary.keys()] # find the shortest backtest data - this is to stop errors for series with different lengths
 
-        print('Running Simulation') # tell the unsuspecting user that they initiated a backtest and its beginning right now
+        print('Running Simulation',end=' ') if strategy_object.verbose == False else print('Running Simulation') # tell the unsuspecting user that they initiated a backtest and its beginning right now
 
         # main back test loop
         for row_index in range(min(backtest_data_lengths)):
@@ -37,7 +37,8 @@ class Engine:
             strategy_object.step(current_bar_package)  # give the bar package to the strategy to be parsed and dealt with properly
 
 
-        print('Simulation Complete!') # tell the user their strategy is done being slammed by the backtest
+        print('=> Simulation Complete!') # tell the user their strategy is done being slammed by the backtest
+
 
         if log:
             self.build_log(strategy_object=strategy_object,filename=filename)
