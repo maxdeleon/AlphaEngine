@@ -1,4 +1,5 @@
 from logic.algoManager import Strategy
+from strategies.benchmark.benchmark import BuyAndHold
 import math
 import numpy as np
 from scipy import integrate
@@ -48,46 +49,49 @@ class StochSignal:
 
 
 class MACDStrat(Strategy):
-    def __init__(self):
+    def __init__(self,fast_period=12,slow_period=26,signal_period=9):
         Strategy.__init__(self)
-        self.in_market = False
-        self.trade_limits = (0.1,0.03)
+        self.verbose = False #
+        self.in_market = False # by default the algo will begin with no positions and thus is not in the market
+        self.trade_limits = (0.1,0.03) # set the trade limits
+        self.parameter_dictionary = {'fastperiod':fast_period,'slowperiod':slow_period,'signalperiod':signal_period}
 
     def process_1(self):
         self.set_trade_allocation(0.7) # max cash to be used at any time for any asset
 
-        cash_allocation = {}
+        cash_allocation = {} # cash allocation dictionary
         # cash to be used at any time for each asset
-        for ticker in self.asset_dictionary.keys():
-            cash_allocation[ticker] = self.trade_cash/len(self.asset_dictionary.keys())
+        for ticker in self.asset_dictionary.keys(): # iterate through the tickers in the asset universe
+            cash_allocation[ticker] = self.trade_cash/len(self.asset_dictionary.keys()) # assign each asset an even cash allocation for trading
 
         # iterate through each asset in the universe and run trade logic
         for ticker in self.asset_dictionary.keys():
-            current_position = self.asset_dictionary[ticker].position
-            self.in_market = True if current_position != 0 else False
+            current_position = self.asset_dictionary[ticker].position # get the current size of the position from asset object
+            self.in_market = True if current_position != 0 else False # varaible to tell if algo asset is risk on
 
-            close = self.asset_dictionary[ticker].bars.Close
-            macd, macdsignal, macdhist = MACD(close, fastperiod=12, slowperiod=26, signalperiod=9)
+            close = self.asset_dictionary[ticker].bars.Close # assign the current for loop asset's close price series to a temp variable
+            macd, macdsignal, macdhist = MACD(close, fastperiod=self.parameter_dictionary['fastperiod'], slowperiod=self.parameter_dictionary['slowperiod'], signalperiod=self.parameter_dictionary['signalperiod']) # define our macd
 
-            self.position_size = int(math.floor(cash_allocation[ticker] / close[-1]))
+            self.position_size = int(math.floor(cash_allocation[ticker] / close[-1])) # auto size our position
 
-            if not self.in_market:
-                if macdsignal[-1] > 0 and self.position_size > 0:
-                    self.create_order(ticker=ticker,quantity=self.position_size,price=close[-1],message='MACD BUY')
-                    self.buy_price = close[-1]
+            if not self.in_market: # if not in the market then proceed to testing buy conditions
+                if macdsignal[-1] > 0 and self.position_size > 0: # if fast > slow, buy the asset
+                    self.create_order(ticker=ticker,quantity=self.position_size,price=close[-1],message='MACD BUY') # create the order
+                    self.buy_price = close[-1] # set the buy price varible so we can use our offset / stop loss logic
                 else: pass
 
-            if self.in_market:
-                if macdsignal[-1] <= 0:
-                    self.create_order(ticker=ticker,quantity=-current_position,price=close[-1],message='MACD SELL')
+            elif self.in_market: # if in the market then proceed to testing sell conditions
+                if macdsignal[-1] <= 0: # macd sell condition
+                    self.create_order(ticker=ticker,quantity=-current_position,price=close[-1],message='MACD SELL') # create the order
 
-                elif close[-1] >= self.buy_price*(1+self.trade_limits[0]):
-                    self.create_order(ticker=ticker, quantity=-current_position, price=close[-1],message='OFFSET STOP')
+                elif close[-1] >= self.buy_price*(1+self.trade_limits[0]): # offset stop sell
+                    self.create_order(ticker=ticker, quantity=-current_position, price=close[-1],message='OFFSET STOP')# create the order
 
-                elif close[-1] <= self.buy_price*(1-self.trade_limits[1]):
-                    self.create_order(ticker=ticker, quantity=-current_position, price=close[-1],message='STOP LOSS')
+                elif close[-1] <= self.buy_price*(1-self.trade_limits[1]): # stop loss sell
+                    self.create_order(ticker=ticker, quantity=-current_position, price=close[-1],message='STOP LOSS')# create the order
 
                 else: pass
+            else: pass
 
 
 def main():
