@@ -40,10 +40,10 @@ class Engine:
         print('=> Simulation Complete!') # tell the user their strategy is done being slammed by the backtest
 
 
-        if log:
-            self.build_log(strategy_object=strategy_object,filename=filename)
+        return self.build_log(strategy_object=strategy_object,filename=filename,make_csv=log)
 
-    def build_log(self,strategy_object,filename='BACKTEST_LOG.csv'):
+
+    def build_log(self,strategy_object,filename='BACKTEST_LOG.csv',make_csv=False):
 
         log_df = strategy_object.cash_tracker.get_balances() # get the cash balances of the strategy
         log_df['strategy_value'] = log_df['total_cash'] # create a column to track the value of the strategy's holdings
@@ -61,8 +61,14 @@ class Engine:
             log_df['strategy_value'] += log_df[ticker+'_close'] * log_df[ticker+'_current_position'] # calculate the value of the holdings
 
 
-        print('PnL: $' + str(log_df.strategy_value.iloc[-1]-log_df.strategy_value.iloc[0])) # print out PnL to the terminal
+        #print('PnL: $' + str(log_df.strategy_value.iloc[-1]-log_df.strategy_value.iloc[0]) + '| PnL % '+ str(100*(log_df.strategy_value.iloc[-1]-log_df.strategy_value.iloc[0])/log_df.strategy_value.iloc[0])) # print out PnL to the terminal
+        pnl_percent = 100*((log_df.strategy_value.iloc[-1]-log_df.strategy_value.iloc[0])/log_df.strategy_value.iloc[0])
+        #print('Exporting trade data to',filename)
 
-        print('Exporting trade data to',filename)
-        log_df.to_csv(filename)
+        if make_csv:
+            log_df.to_csv(filename)
+        else: pass
+
+        return pnl_percent
+
 
