@@ -78,6 +78,25 @@ def test_stochastic(): # method to test stochastic processes
     plt.title(str(some_asset), fontsize=10)
     plt.show()
 
+
+def test_eval_method():
+    print('testing eval method...')  # tell the user what they just did
+
+    test_benchmark = BuyAndHold()  # define the strategy that will beat the sp500
+    engine = alpha.Engine()  # define the engine that will test our epic win strat
+
+    test_params = {'strategy': BuyAndHold(),
+                   'benchmark': BuyAndHold(),
+                   'starting_cash': 10000,
+                   'asset_dict_parameters': {'asset_A': {'drift':.2,'volatility':.1,'delta_t':1/252,'initial_price':100},
+                                             'asset_B': {'drift':.4,'volatility':.3,'delta_t':1/252,'initial_price':100}},
+                   'sample_size': 100}
+
+    engine.evaluate(eval_params=test_params)
+
+
+
+
 def main():
     test_algo_class()
     #test_stochastic()
