@@ -14,18 +14,21 @@ class Asset:
     # updates the asset by appending the most current bar onto the current bar dataframe
     def update(self,bar):
         self.bars = self.bars.append(bar,ignore_index=False)
-        self.returns = np.log(self.bars.Close[-1] / self.bars.Close[-2]) if len(self.bars.index) > 1 else 0 #  calculate returns
+        self.returns = np.log(self.bars.Close.iloc[-1] / self.bars.Close.iloc[-2]) if len(self.bars) > 1 else 0 #  calculate returns
+
+
+
         self.trade_log = self.trade_log.append({'date': self.bars.index[-1],
                                                 self.ticker + '_current_position': self.position,
                                                 self.ticker + '_trade_quantity': 0,
                                                 self.ticker + '_trade_price': 0,
                                                 self.ticker+'_returns':self.returns},ignore_index=True)
 
-        self.open = self.bars.Open[-1]
-        self.high = self.bars.High[-1]
-        self.low = self.bars.Low[-1]
-        self.close = self.bars.Close[-1]
-        self.volume = self.bars.Volume[-1]
+        self.open = self.bars.Open.iloc[-1] if 'Open' in self.bars.columns else 0
+        self.high = self.bars.High.iloc[-1] if 'High' in self.bars.columns else 0
+        self.low = self.bars.Low.iloc[-1] if 'Low' in self.bars.columns else 0
+        self.close = self.bars.Close.iloc[-1] if 'Close' in self.bars.columns else 0
+        self.volume = self.bars.Volume.iloc[-1] if 'Volume' in self.bars.columns else 0
 
 
 
