@@ -16,6 +16,7 @@ class BuyAndHold(Strategy):
         Strategy.__init__(self)
         self.has_initialized = False
         self.verbose = True
+        self.set_trade_allocation(1)
 
         # the remaining 20% is just cash
     def build_index(self):
@@ -28,7 +29,7 @@ class BuyAndHold(Strategy):
                                             'value':partition*self.trade_cash,
                                             'quantity':initial_quantity,
                                             'pps':initial_price}
-        print('portfolio allocation set. creating orders')
+        #print('portfolio allocation set. creating orders')
 
         for ticker in self.asset_dictionary.keys():
             self.create_order(ticker, self.allocation_dict[ticker]['quantity'], self.allocation_dict[ticker]['pps'],message='benchmark order')
@@ -98,7 +99,7 @@ def test_eval_method():
 
 
 def main():
-    test_algo_class()
+    #test_algo_class()
     #test_stochastic()
 
     test_eval_method()
