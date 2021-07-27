@@ -2,6 +2,7 @@ import pandas as pd
 import math, random
 import numpy as np
 from tools.Stochastics import StochasticProcessManager
+import copy
 '''
 Created by Maximo Xavier DeLeon on 6/23/2021
 '''
@@ -103,26 +104,29 @@ class Engine:
 
                     trial_dict['trial_'+str(i)] = current_trial_dict
 
-
+            eval_params['strategy']
             # do the backtesting now
-            strategy_list = [eval_params['strategy'] for n in range(eval_params['sample_size'])]
-            benchmark_list = [eval_params['benchmark'] for n in range(eval_params['sample_size'])]
             pnl_dict = {'strategy_pnl':{},
                         'benchmark_pnl': {}}
 
             for i in range(1,eval_params['sample_size']):
-                pnl_dict['strategy_pnl']['trial_'+str(i)] = self.backtest(strategy_object=strategy_list[i],
+
+                strategy_instance = copy.deepcopy(eval_params['strategy'])
+                strategy_instance.verbose = False
+                pnl_dict['strategy_pnl']['trial_'+str(i)] = self.backtest(strategy_object=strategy_instance,
                                                                             backtest_series_dictionary=trial_dict['trial_'+str(i)],
                                                                             starting_cash=eval_params['starting_cash'],
                                                                             log=False)
-                ''' 
-                pnl_dict['benchmark_pnl']['trial_'+str(i)] = self.backtest(strategy_object=benchmark_list[i],
+
+                benchmark_instance = copy.deepcopy(eval_params['benchmark'])
+                benchmark_instance.verbose = False
+                pnl_dict['benchmark_pnl']['trial_'+str(i)] = self.backtest(strategy_object=benchmark_instance,
                                                                              backtest_series_dictionary=trial_dict['trial_'+str(i)],
                                                                              starting_cash=eval_params['starting_cash'],
                                                                              log=False)
-                '''
 
-                #print('strategy:',pnl_dict['strategy_pnl']['trial_'+str(i)], ' benchmark:',pnl_dict['strategy_pnl']['trial_'+str(i)])
+
+                print('strategy:',pnl_dict['strategy_pnl']['trial_'+str(i)], ' benchmark:',pnl_dict['strategy_pnl']['trial_'+str(i)])
 
 
 
