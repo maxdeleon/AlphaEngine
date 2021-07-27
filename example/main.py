@@ -101,5 +101,7 @@ def main():
     test_algo_class()
     #test_stochastic()
 
+    test_eval_method()
+
 if __name__ == '__main__':
     main()
