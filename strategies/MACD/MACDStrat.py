@@ -8,44 +8,7 @@ from market_data import yahooClient
 from execution import alpha
 from talib import MACD
 
-class StochSignal:
-    def __init__(self, parameter_dict=None):
-        self.parameters = {'drift': 0, 'volatility': 0} if parameter_dict is None else parameter_dict
 
-    def set_parameters(self, parameter_dict):
-        self.parameters = parameter_dict
-
-    def compute_bound(self, s0, pi, mu, sigma, t):
-        return np.log(pi / (s0 * np.exp((mu - 0.5 * (sigma ** 2)) * t))) / (sigma * np.sqrt(t))
-
-    # computes the probability of being above or under a specified price
-    def compute_probability(self, s0, pi, mu, sigma, t, condition='over'):
-        psi = lambda x: ((2 * np.pi) ** -0.5) * np.exp(-0.5 * (x ** 2))
-
-        if condition == 'over':
-            lower_bound = self.compute_bound(s0, pi, mu, sigma, t)
-            result = integrate.quad(psi, lower_bound, np.inf)
-        elif condition == 'under':
-            upper_bound = self.compute_bound(s0, pi, mu, sigma, t)
-            result = integrate.quad(psi, -np.inf, upper_bound)
-        else:
-            return 'error'
-        return result[0], result[-1]
-
-    def build_probability_table(self, s0, sT, condition, max_horizon=252):
-        if condition == 'over' or condition == 'under':
-            probability_key = 'probability_' + condition #+ '_' + str(round(sT,2))
-            probability_dict = {probability_key: []}
-            for x in (1, max_horizon + 1):
-                current_probability,error = self.compute_probability(s0=s0,pi=sT,mu=self.parameters['drift'],sigma=self.parameters['volatility'],t=x,condition=condition)
-                probability_dict[probability_key].append(current_probability)
-
-            probability_df = pd.DataFrame()
-            probability_df[probability_key] = probability_dict[probability_key]
-            return probability_df
-        else: raise ValueError('Issue with input')
-
-''''''
 
 
 class MACDStrat(Strategy):
