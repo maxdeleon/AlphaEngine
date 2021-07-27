@@ -19,9 +19,9 @@ class BuyAndHold(Strategy):
         # the remaining 20% is just cash
     def build_index(self):
         for ticker in self.asset_dictionary.keys():  # for each ticker in the universe of tickers that this algorithm can trade
-            initial_price = self.asset_dictionary[ticker].close
-            initial_quantity = math.floor((self.cash * self.allocation_dict[ticker])/self.asset_dictionary[ticker].close)
-            self.create_order(ticker, initial_quantity, self.asset_dictionary[ticker].close)
+            initial_price = self.asset_dictionary[ticker].bars.Close[-1]
+            initial_quantity = math.floor((self.cash * self.allocation_dict[ticker])/self.asset_dictionary[ticker].bars.Close[-1])
+            self.create_order(ticker, initial_quantity, initial_price)
     def process_1(self):
         if not self.has_initialized:  # check to see if this has initialized
             self.build_index()
