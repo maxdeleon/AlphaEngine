@@ -196,12 +196,15 @@ class Strategy:
     def universe(self,action,ticker):
         if action == 'add' and ticker not in self.asset_dictionary.keys():
             self.asset_dictionary[ticker] = Asset(ticker)
-            print('System alert: added',ticker,'to universe')
+            if self.verbose:
+                print('System alert: added',ticker,'to universe')
+            else: pass
 
         elif action == 'remove' and ticker in self.asset_dictionary.keys():
             del self.asset_dictionary[ticker]
-            print('System alert: removed', ticker, 'from universe')
-
+            if self.verbose:
+                print('System alert: removed', ticker, 'from universe')
+            else: pass
     # sets the initial cash
     def set_cash(self,cash):
         self.cash = cash
