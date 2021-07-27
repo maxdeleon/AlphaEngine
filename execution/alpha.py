@@ -1,6 +1,7 @@
 import pandas as pd
 import math, random
 import numpy as np
+from tools.Stochastics import StochasticProcessManager
 '''
 Created by Maximo Xavier DeLeon on 6/23/2021
 '''
@@ -71,4 +72,71 @@ class Engine:
 
         return pnl_percent
 
+    '''
+    eval_params = {'strategy':None,
+                   'benchmark':None,
+                   'starting_cash':float,
+                   'asset_dict_parameters':{'ticker':{'drift':None,'volatility':None,'delta_t':None,'initial_price':None}},
+                   'sample_size':100}
+    '''
+
+    def evaluate(self,eval_params):
+
+        scenario_dict = {}
+        if 'asset_dict_parameters' in eval_params.keys():
+            scenario_params = eval_params['asset_dict_parameters']
+            scenario_generator = StochasticProcessManager()
+            for ticker in scenario_params.keys():
+                # generate a dictionary of scenarios and append it to the scenario dict
+                scenario_dict[ticker+'_GBM'] = scenario_generator.build_scenarios(amount=eval_params['sample_size'],stochastic_parameters=scenario_params[ticker],column_name='Close',ticker=ticker)
+
+            trial_dict = {}
+            for i in range(1,eval_params['sample_size']):
+                current_trial_dict = {}
+                for ticker in scenario_params.keys():
+                    current_trial_dict[ticker] = scenario_dict[ticker+'_GBM'][list(scenario_dict[ticker+'_GBM'].keys())[-1]]
+                    current_trial_dict[ticker]['Open'] = 0
+                    current_trial_dict[ticker]['High'] = 0
+                    current_trial_dict[ticker]['Low'] = 0
+                    current_trial_dict[ticker]['Volume'] = 0
+                    del scenario_dict[ticker+'_GBM'][list(scenario_dict[ticker+'_GBM'].keys())[-1]]
+
+                    trial_dict['trial_'+str(i)] = current_trial_dict
+
+
+            # do the backtesting now
+            strategy_list = [eval_params['strategy'] for n in range(eval_params['sample_size'])]
+            benchmark_list = [eval_params['benchmark'] for n in range(eval_params['sample_size'])]
+            pnl_dict = {'strategy_pnl':{},
+                        'benchmark_pnl': {}}
+
+            for i in range(1,eval_params['sample_size']):
+                pnl_dict['strategy_pnl']['trial_'+str(i)] = self.backtest(strategy_object=strategy_list[i],
+                                                                            backtest_series_dictionary=trial_dict['trial_'+str(i)],
+                                                                            starting_cash=eval_params['starting_cash'],
+                                                                            log=False)
+                ''' 
+                pnl_dict['benchmark_pnl']['trial_'+str(i)] = self.backtest(strategy_object=benchmark_list[i],
+                                                                             backtest_series_dictionary=trial_dict['trial_'+str(i)],
+                                                                             starting_cash=eval_params['starting_cash'],
+                                                                             log=False)
+                '''
+
+                #print('strategy:',pnl_dict['strategy_pnl']['trial_'+str(i)], ' benchmark:',pnl_dict['strategy_pnl']['trial_'+str(i)])
+
+
+
+
+
+
+        # +++++++++++++++++ do this now +++++++++++++++++
+        # take in the strategy, a benchmark, GBM parameters, N number of GBM processes for M assets
+        # run strategy on each GBM process along side the benchmark
+        # t-test for signifigance, return p-value
+
+
+
+        # +++++++++++++++++ do this later +++++++++++++++++
+        # run strategy and benchmark on actual historical data with similar if not identical GBM parameters
+        # determine whether or not the strategy just got lucky or is within the convidence interval produced from our GBM
 
