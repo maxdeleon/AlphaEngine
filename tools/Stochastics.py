@@ -2,6 +2,7 @@ import math
 import pandas as pd
 import numpy as np
 from random import random
+from scipy import integrate
 
 # This section is to simulate market prices given drift,volatility,delta_t,initial_price as parameters
 # Ideally this will allow for us to tests shorter term entry and exit points for given assets without worrying about over fitting on historical prices
@@ -81,3 +82,28 @@ class StochasticProcessManager:
             stochastic_process_df_list.append(pd.DataFrame(data=process.prices,index=list(np.arange(len(process.prices))),columns= [column_name])) # append casted stochastic data to a df
         scenarios = dict(zip(stochastic_tickers,stochastic_process_df_list)) # build a dictionary of nested pandas dataframes to be used with the backtester
         return scenarios # return the scenario dictionary
+
+
+class StochSignal:
+    def __init__(self, parameter_dict=None):
+        self.parameters = {'drift': 0, 'volatility': 0} if parameter_dict is None else parameter_dict
+
+    def set_parameters(self, parameter_dict):
+        self.parameters = parameter_dict
+
+    def compute_bound(self, s0, pi, mu, sigma, t):
+        return np.log(pi / (s0 * np.exp((mu - 0.5 * (sigma ** 2)) * t))) / (sigma * np.sqrt(t))
+
+    # computes the probability of being above or under a specified price
+    def compute_probability(self, s0, pi, mu, sigma, t, condition='over'):
+        psi = lambda x: ((2 * np.pi) ** -0.5) * np.exp(-0.5 * (x ** 2))
+
+        if condition == 'over':
+            lower_bound = self.compute_bound(s0, pi, mu, sigma, t)
+            result = integrate.quad(psi, lower_bound, np.inf)
+        elif condition == 'under':
+            upper_bound = self.compute_bound(s0, pi, mu, sigma, t)
+            result = integrate.quad(psi, -np.inf, upper_bound)
+        else:
+            return 'error'
+        return result[0], result[-1]
