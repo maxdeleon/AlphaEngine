@@ -1,0 +1,14 @@
+~backtest_name=default_parameters
+
+data_source=yahoo
+asset_universe=['AAPL','MSFT','TSLA']
+start_date=2020-6-15
+stop_date=2021-6-15
+
+data_source=pickle
+pickle_path=example_backtest_data.p
+
+
+~verbose=True
+~starting_cash=25000
+~csv_file_name=backtest_log.csv
