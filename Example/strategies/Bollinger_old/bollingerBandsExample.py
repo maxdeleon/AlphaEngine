@@ -1,9 +1,8 @@
 import math
 import numpy as np
-from execution import alpha
-from logic import algoManager
-from logic.algoManager import Strategy
-from market_data import yahooClient
+from AlphaPackage.Execution import alpha
+from AlphaPackage.Logic import Strategy
+from AlphaPackage.MarketData import yahooClient
 import talib
 from talib import MA_Type
 

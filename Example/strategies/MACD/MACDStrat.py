@@ -1,11 +1,8 @@
-from logic.algoManager import Strategy
-from strategies.benchmark.benchmark import BuyAndHold
+from AlphaPackage import *
+from Example.strategies.benchmark.benchmark import *
 import math
-import numpy as np
-from scipy import integrate
-import pandas as pd
-from market_data import yahooClient
-from execution import alpha
+from AlphaPackage.MarketData import yahooClient
+from AlphaPackage.Execution import alpha
 from talib import MACD
 
 
@@ -27,7 +24,7 @@ class MACDStrat(Strategy):
         for ticker in self.asset_dictionary.keys(): # iterate through the tickers in the asset universe
             cash_allocation[ticker] = self.trade_cash/len(self.asset_dictionary.keys()) # assign each asset an even cash allocation for trading
 
-        # iterate through each asset in the universe and run trade logic
+        # iterate through each asset in the universe and run trade Logic
         for ticker in self.asset_dictionary.keys():
             current_position = self.asset_dictionary[ticker].position # get the current size of the position from asset object
             self.in_market = True if current_position != 0 else False # varaible to tell if algo asset is risk on
@@ -40,7 +37,7 @@ class MACDStrat(Strategy):
             if not self.in_market: # if not in the market then proceed to testing buy conditions
                 if macdsignal[-1] > 0 and self.position_size > 0: # if fast > slow, buy the asset
                     self.create_order(ticker=ticker,quantity=self.position_size,price=close[-1],message='MACD BUY') # create the order
-                    self.buy_price = close[-1] # set the buy price varible so we can use our offset / stop loss logic
+                    self.buy_price = close[-1] # set the buy price varible so we can use our offset / stop loss Logic
                 else: pass
 
             elif self.in_market: # if in the market then proceed to testing sell conditions
