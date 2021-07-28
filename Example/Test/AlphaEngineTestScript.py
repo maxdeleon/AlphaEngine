@@ -1,7 +1,7 @@
-from execution import alpha
-from tools import Stochastics as stoch
-from logic.algoManager import Strategy
-from market_data import yahooClient
+from AlphaPackage.Execution import alpha
+from AlphaPackage.ToolKit import stochastics as stoch
+from AlphaPackage.Logic import Strategy
+from AlphaPackage.MarketData import yahooClient
 import pandas as pd
 import matplotlib.pyplot as plt
 import math
@@ -99,8 +99,8 @@ def test_eval_method():
 
 
 def main():
-    #test_algo_class()
-    #test_stochastic()
+    test_algo_class()
+    test_stochastic()
 
     test_eval_method()
 
