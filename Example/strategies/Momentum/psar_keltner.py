@@ -1,12 +1,8 @@
-from logic.algoManager import Strategy
-from strategies.benchmark.benchmark import BuyAndHold
-import math
-import numpy as np
-from scipy import integrate
+from AlphaPackage.Logic import Strategy
+from Example.strategies.benchmark.benchmark import BuyAndHold
 import pandas as pd
-from market_data import yahooClient
-from execution import alpha
-from talib import MACD
+from AlphaPackage.MarketData import yahooClient
+from AlphaPackage.Execution import alpha
 
 
 class KeltnerChannelStrategy(Strategy):

@@ -1,10 +1,6 @@
-from execution import alpha
-from logic import algoManager
-from tools import Stochastics as stoch
-from logic.algoManager import Strategy
-from market_data import yahooClient
-import pandas as pd
-import matplotlib.pyplot as plt
+from AlphaPackage.Execution import alpha
+from AlphaPackage.Logic import Strategy
+from AlphaPackage.MarketData import yahooClient
 import math
 '''
 Created by Maximo Xavier DeLeon on 7/13/2021
@@ -46,10 +42,10 @@ def test_algo_class():
     engine = alpha.Engine()  # define the engine that will test our epic win strat
 
     pnl = engine.backtest(strategy_object=test_benchmark,  # tell the engine what strategy we want to backtest
-                    backtest_series_dictionary=backtest_data,  # tell the engine what data we want to backtest on
-                    starting_cash=25000,  # set the starting cash
-                    log=True,
-                    filename='BACKTEST_LOG_benchmark.csv')
+                          backtest_series_dictionary=backtest_data,  # tell the engine what data we want to backtest on
+                          starting_cash=25000,  # set the starting cash
+                          log=True,
+                          filename='BACKTEST_LOG_benchmark.csv')
 
     print('PnL %:', pnl)
 def main():
