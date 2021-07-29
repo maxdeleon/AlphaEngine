@@ -121,13 +121,18 @@ class Engine:
                                                                             backtest_series_dictionary=trial_dict['trial_'+str(i)],
                                                                             starting_cash=eval_params['starting_cash'],
                                                                             log=False)
-
-                benchmark_instance = copy.deepcopy(eval_params['benchmark'])
-                benchmark_instance.verbose = False
+                # run the benchmark backtest
                 pnl_dict['benchmark_pnl']['trial_'+str(i)] = self.backtest(strategy_object=benchmark_instance,
                                                                              backtest_series_dictionary=trial_dict['trial_'+str(i)],
                                                                              starting_cash=eval_params['starting_cash'],
                                                                              log=False)
+            # once all that testing is done
+            # create a dataframe that has the data from our GBM tests
+            returns_df = pd.DataFrame()
+            returns_df['strategy_pnl'] = pnl_dict['strategy_pnl'].values() # strategy pnl data
+            returns_df['benchmark_pnl'] = pnl_dict['strategy_pnl'].values() # benchmark pnl data
+            returns_df.index = pnl_dict['strategy_pnl'].keys() # set the index of the data frame
+
 
             # calculate mean return
             strategy_mean_returns = returns_df['strategy_pnl'].mean()
