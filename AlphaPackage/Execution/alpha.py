@@ -81,21 +81,22 @@ class Engine:
                    'sample_size':100}
     '''
 
-    def evaluate(self,eval_params):
-
+    def evaluate(self,eval_params,return_csv=False,filename='default_evaluation_data.csv'):
         scenario_dict = {}
         if 'asset_dict_parameters' in eval_params.keys():
-            scenario_params = eval_params['asset_dict_parameters']
-            scenario_generator = StochasticProcessManager()
-            for ticker in scenario_params.keys():
+            scenario_params = eval_params['asset_dict_parameters'] # said parameters
+            scenario_generator = StochasticProcessManager() # create an instance of our SPM class
+            for ticker in scenario_params.keys(): # iterate through the parameters to create simulated asset price movements
                 # generate a dictionary of scenarios and append it to the scenario dict
                 scenario_dict[ticker+'_GBM'] = scenario_generator.build_scenarios(amount=eval_params['sample_size'],stochastic_parameters=scenario_params[ticker],column_name='Close',ticker=ticker)
 
             trial_dict = {}
             for i in range(1,eval_params['sample_size']):
                 current_trial_dict = {}
+                # this section iterates through the dictionaries of simulated asset price movements to build trials for testing strategy/benchmark
                 for ticker in scenario_params.keys():
                     current_trial_dict[ticker] = scenario_dict[ticker+'_GBM'][list(scenario_dict[ticker+'_GBM'].keys())[-1]]
+                    # this section may get pruned out
                     current_trial_dict[ticker]['Open'] = 0
                     current_trial_dict[ticker]['High'] = 0
                     current_trial_dict[ticker]['Low'] = 0
@@ -104,15 +105,18 @@ class Engine:
 
                     trial_dict['trial_'+str(i)] = current_trial_dict
 
-            eval_params['strategy']
-            # do the backtesting now
-            pnl_dict = {'strategy_pnl':{},
-                        'benchmark_pnl': {}}
+            # dict to hold our simulated results
+            pnl_dict = {'strategy_pnl':{},'benchmark_pnl': {}}
 
+            # iterate through the number of trials and test the strategy N times
             for i in range(1,eval_params['sample_size']):
-
+                # copy the Strategy objects for the current iteration of backtests
                 strategy_instance = copy.deepcopy(eval_params['strategy'])
+                benchmark_instance = copy.deepcopy(eval_params['benchmark'])
+                # set the Strategy objects to not make any chatter
                 strategy_instance.verbose = False
+                benchmark_instance.verbose = False
+                # run the strategy backtest
                 pnl_dict['strategy_pnl']['trial_'+str(i)] = self.backtest(strategy_object=strategy_instance,
                                                                             backtest_series_dictionary=trial_dict['trial_'+str(i)],
                                                                             starting_cash=eval_params['starting_cash'],
@@ -125,11 +129,71 @@ class Engine:
                                                                              starting_cash=eval_params['starting_cash'],
                                                                              log=False)
 
+            # calculate mean return
+            strategy_mean_returns = returns_df['strategy_pnl'].mean()
+            benchamrk_mean_returns = returns_df['benchmark_pnl'].mean()
+
+            # calculate uncertainty in the mean
+            strategy_uncertainty_in_the_mean = strategy_mean_returns*(returns_df['strategy_pnl'].std()/len(returns_df.index))
+            benchamrk_uncertainty_in_the_mean = strategy_mean_returns*(returns_df['benchmark_pnl'].std()/len(returns_df.index))
+
+            # calculate the t-statistic, if someone else can please review this I would appreciate it.
+            t_statistic = (strategy_mean_returns-benchamrk_mean_returns)/(((strategy_uncertainty_in_the_mean)**2 + (benchamrk_uncertainty_in_the_mean)**2)**.05)
+
+            print('Mean Strategy PnL:',strategy_mean_returns, '|','Mean Benchmark PnL:',benchamrk_mean_returns)
+
+            print('t-statistic:', t_statistic,end=' => ') # print out the t_statistic for the user to see
+
+            # make the data driven decision on whether or not the strategy's performance is distinguishable from the benchmark
+            if abs(t_statistic) <= 1:
+                print('Strategy and benchmark are indistinguishable given their uncertainties. Cannot conclude that strategy and benchmark are different.')
+                signifigance_sign = -1
+            elif 1 <= abs(t_statistic) <= 3:
+                print('Strategy and benchmark are in tension -- they may be distinguishable, but the evidence is tenuous. Consider increasing sample size.')
+                signifigance_sign = 0
+            elif abs(t_statistic) >= 3:
+                print('Strategy and benchmark are distinguishable given their uncertainties. In other words, we can conclude that strategy and benchmark are very likely to be different.')
+                signifigance_sign = 1
+            else:
+                print('error? how did you get here') # this should'nt be seen by whoever is running this method
+                signifigance_sign = 2
+
+
+            ''' 
+            H_0: A and B are not the same
+            H_1: A and B are the same
+            
+            - if strategy pnl is greater and distinguishable from benchmark then the strategy is good for given market conditions
+            - if strategy pnl is greater and is not distinguishable from benchmark then the strategy should be evaluated further
+            
+            - if strategy pnl is less and distinguishable from benchmark then the strategy is not so goog for given market conditions
+            - if strategy pnl is less and is not distinguishable from benchmark then the strategy should be evaluated further
+            
+            
+            --This was taken from PHYS 2305-2306 lab statistics handbook and will be used as a reference for the time being --
+            For |t′|≤1:
+            This result does not mean that A and B are the same. This result only tells us that we cannot distinguish A and B using the available data.
+            For example, suppose you improve your experimental design, perform new, better measurements, and reduce the statistical uncertainties in A and B. After applying the t'-test to this new data, you might discover that A and B are now distinguishable.
+            In summary, when you perform a t'-test and obtain|𝑡′|≤1, you should consider improving your measurements to decrease the statistical uncertainties in A and B. Poor precision (i.e., overinflated uncertainties) may be hiding a subtle difference between your two measured values.
+            
+            1< |t′|<3:
+            This result means that A and B are in tension, and you should endeavor to obtain more conclusive evidence. As such, you should improve your measurements to decrease the statistical uncertainties in A and B.
+            
+            |t′|≥3:
+            This result means that we can distinguish A and B using the available data. If your model predicts that A and B should be indistinguishable, then this result implies that you need to re-evaluate your model and possibly revise it.
+
+            '''
+
+
+            if return_csv:
+                returns_df.to_csv(filename)
+            else:
+                pass
+
+            return (t_statistic,signifigance_sign,returns_df) # return the important information as a tuple
 
 
 
-
-                print('strategy:',pnl_dict['strategy_pnl']['trial_'+str(i)], ' benchmark:',pnl_dict['strategy_pnl']['trial_'+str(i)])
 
 
 
