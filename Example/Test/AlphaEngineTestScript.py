@@ -68,7 +68,7 @@ def test_stochastic(): # method to test stochastic processes
     print('testing stochastic process classes...') # tell the user what they just did
     some_asset = {'drift':.2,'volatility':.1,'delta_t':1/252,'initial_price':100} # random parameters
     asset_simulator = stoch.StochasticProcessManager(stochastic_parameters=some_asset) # create a instance of the SPM
-    simulations = asset_simulator.build_scenarios(amount=100) # generate 10 different GBM simulations
+    simulations = asset_simulator.build_scenarios(amount=5) # generate 10 different GBM simulations
     final_df = pd.DataFrame()
     for i in simulations.keys():   # print out all of the price lists
         final_df[i] = simulations[i].Close
@@ -91,16 +91,16 @@ def test_eval_method():
                    'starting_cash': 10000,
                    'asset_dict_parameters': {'asset_A': {'drift':.2,'volatility':.1,'delta_t':1/252,'initial_price':100},
                                              'asset_B': {'drift':.4,'volatility':.3,'delta_t':1/252,'initial_price':100}},
-                   'sample_size': 100}
+                   'sample_size': 5}
 
-    engine.evaluate(eval_params=test_params)
+    engine.evaluate(eval_params=test_params,return_csv=False,filename='test.csv')
 
 
 
 
 def main():
-    test_algo_class()
-    test_stochastic()
+    #test_algo_class()
+    #test_stochastic()
 
     test_eval_method()
 
