@@ -13,16 +13,25 @@ class Asset:
 
     # updates the asset by appending the most current bar onto the current bar dataframe
     def update(self,bar):
-        self.bars = self.bars.append(bar,ignore_index=False)
+        #self.bars = self.bars.append(bar,ignore_index=False)
+       
+        
+        self.bars = pd.concat([self.bars,pd.DataFrame(dict(zip(list(bar.index), [[b] for b in bar.values])), index=[bar.name])], axis=0,ignore_index=False)
         self.returns = np.log(self.bars.Close.iloc[-1] / self.bars.Close.iloc[-2]) if len(self.bars) > 1 else 0 #  calculate returns
 
-
-
-        self.trade_log = self.trade_log.append({'date': self.bars.index[-1],
+        # @dev CONVERT ALL APPEND ACTIONS TO CONCAT
+        # @dev CREATE FORMAL DEFINITION FOR TRACKING DATAFRAMES
+        self.trade_log = pd.concat([self.trade_log,pd.DataFrame({'date': self.bars.index[-1],
                                                 self.ticker + '_current_position': self.position,
                                                 self.ticker + '_trade_quantity': 0,
                                                 self.ticker + '_trade_price': 0,
-                                                self.ticker+'_returns':self.returns},ignore_index=True)
+                                                self.ticker+'_returns':self.returns}, index=[bar.name])], axis=0, ignore_index=False)
+        
+        # self.trade_log = self.trade_log.append({'date': self.bars.index[-1],
+        #                                         self.ticker + '_current_position': self.position,
+        #                                         self.ticker + '_trade_quantity': 0,
+        #                                         self.ticker + '_trade_price': 0,
+        #                                         self.ticker+'_returns':self.returns},ignore_index=True)
 
         self.open = self.bars.Open.iloc[-1] if 'Open' in self.bars.columns else 0
         self.high = self.bars.High.iloc[-1] if 'High' in self.bars.columns else 0
@@ -35,11 +44,20 @@ class Asset:
     # adjusts the position in the asset object
     def adjust(self,quantity,price):
         self.position += quantity
-        self.trade_log = self.trade_log.append({'date':self.bars.index[-1],
+
+        self.trade_log = pd.concat([self.trade_log,pd.DataFrame({'date':self.bars.index[-1],
                                self.ticker + '_current_position': self.position,
                                self.ticker+'_trade_quantity':quantity,
                                self.ticker+'_trade_price':price,
-                               self.ticker+'_returns': self.returns},ignore_index=True)
+                               self.ticker+'_returns': self.returns}, index=[self.bars.index[-1]])], axis=0, ignore_index=False)
+
+        # self.trade_log = self.trade_log.append({'date':self.bars.index[-1],
+        #                        self.ticker + '_current_position': self.position,
+        #                        self.ticker+'_trade_quantity':quantity,
+        #                        self.ticker+'_trade_price':price,
+        #                        self.ticker+'_returns': self.returns},ignore_index=True)
+        
+
         self.trade_log = self.trade_log.drop_duplicates(subset=['date'],
                                                         keep='last')
 
@@ -67,8 +85,12 @@ class Cash:
     def __init__(self):
         self.balance = pd.DataFrame()
     def update(self,date,current_cash):
-        self.balance = self.balance.append({'date':date,
-                                            'total_cash':current_cash},ignore_index=True)
+        # self.balance = self.balance.append({'date':date,
+        #                                     'total_cash':current_cash},ignore_index=True)
+        
+        self.balance = pd.concat([self.balance,pd.DataFrame({'date':date,
+                                            'total_cash':current_cash}, index=[date])], axis=0, ignore_index=False)
+
         # however many times we call this per unique date/time we only care about the end of step cash since the resulting difference will match the cash used to make trades
         self.balance = self.balance.drop_duplicates(subset=['date'],keep='last')
 

@@ -14,7 +14,7 @@ class Engine:
         :param starting_cash:
         :return:
         '''
-
+        
         strategy_object.set_cash(starting_cash) # set the starting cash
 
         # iterate through the dictionary keys and use those to define the universe of stocks our strategy will pay attention to
